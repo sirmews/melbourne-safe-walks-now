@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +30,19 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
   useEffect(() => {
     onRouteChange?.(route);
   }, [route, onRouteChange]);
+
+  // Sync input fields with origin/destination changes
+  useEffect(() => {
+    if (origin?.address) {
+      setOriginAddress(origin.address);
+    }
+  }, [origin]);
+
+  useEffect(() => {
+    if (destination?.address) {
+      setDestinationAddress(destination.address);
+    }
+  }, [destination]);
 
   // Simple geocoding function using MapTiler
   const geocodeAddress = async (address: string): Promise<JourneyPoint | null> => {
