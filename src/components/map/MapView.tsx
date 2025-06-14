@@ -60,7 +60,7 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
 
     // Initialize map with MapTiler tiles (free tier available)
     // You'll need to get your API key from https://cloud.maptiler.com/
-    const MAPTILER_API_KEY = 'get_your_key_at_maptiler_dot_com';
+    const MAPTILER_API_KEY = 'trIkgoZsSgH2Ht8MXmzd';
     
     map.current = new maplibregl.Map({
       container: mapContainer.current,
