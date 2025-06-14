@@ -28,9 +28,12 @@ export const useJourneyPlanner = () => {
 
     setIsLoading(true);
     try {
-      // Using OpenRouteService API (free tier available)
+      // Using MapTiler Routing API (free tier available)
+      // You'll need to get your API key from https://cloud.maptiler.com/
+      const MAPTILER_API_KEY = 'get_your_key_at_maptiler_dot_com';
+      
       const response = await fetch(
-        `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=5b3ce3597851110001cf6248c5a6b1e3da454b2882764d5bb7d54b0b&start=${origin.lng},${origin.lat}&end=${destination.lng},${destination.lat}`
+        `https://api.maptiler.com/routing/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?key=${MAPTILER_API_KEY}&overview=full&geometries=geojson`
       );
       
       if (!response.ok) {
@@ -38,18 +41,18 @@ export const useJourneyPlanner = () => {
       }
 
       const data = await response.json();
-      const routeData = data.features[0];
+      const routeData = data.routes[0];
       
       setRoute({
         coordinates: routeData.geometry.coordinates,
-        distance: routeData.properties.segments[0].distance,
-        duration: routeData.properties.segments[0].duration
+        distance: routeData.distance,
+        duration: routeData.duration
       });
       
       toast.success('Route calculated successfully');
     } catch (error) {
       console.error('Error calculating route:', error);
-      toast.error('Failed to calculate route. Please try again.');
+      toast.error('Failed to calculate route. Please add your MapTiler API key.');
     } finally {
       setIsLoading(false);
     }

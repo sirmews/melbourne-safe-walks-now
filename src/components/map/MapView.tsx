@@ -58,31 +58,13 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
   const initializeMap = (lng: number, lat: number) => {
     if (!mapContainer.current) return;
 
-    // Initialize map with OpenStreetMap tiles (free)
+    // Initialize map with MapTiler tiles (free tier available)
+    // You'll need to get your API key from https://cloud.maptiler.com/
+    const MAPTILER_API_KEY = 'get_your_key_at_maptiler_dot_com';
+    
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: {
-        version: 8,
-        sources: {
-          'osm-tiles': {
-            type: 'raster',
-            tiles: [
-              'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-            ],
-            tileSize: 256,
-            attribution: '© OpenStreetMap contributors'
-          }
-        },
-        layers: [
-          {
-            id: 'osm-tiles',
-            type: 'raster',
-            source: 'osm-tiles',
-            minzoom: 0,
-            maxzoom: 19
-          }
-        ]
-      },
+      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`,
       center: [lng, lat],
       zoom: 14
     });
