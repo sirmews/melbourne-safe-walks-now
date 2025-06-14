@@ -48,95 +48,117 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
     }
 
     return () => {
-      // Clean up markers
-      Object.values(markersRef.current).forEach(marker => marker.remove());
+      // Clean up markers first
+      Object.values(markersRef.current).forEach(marker => {
+        try {
+          marker.remove();
+        } catch (error) {
+          console.warn('Error removing marker:', error);
+        }
+      });
       markersRef.current = {};
-      map.current?.remove();
+      
+      // Clean up map instance safely
+      if (map.current) {
+        try {
+          map.current.remove();
+        } catch (error) {
+          console.warn('Error removing map:', error);
+        }
+        map.current = null;
+      }
     };
   }, []);
 
   const initializeMap = (lng: number, lat: number) => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current || map.current) return;
 
     // Initialize map with MapTiler tiles (free tier available)
     // You'll need to get your API key from https://cloud.maptiler.com/
     const MAPTILER_API_KEY = 'trIkgoZsSgH2Ht8MXmzd';
     
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`,
-      center: [lng, lat],
-      zoom: 14
-    });
+    try {
+      map.current = new maplibregl.Map({
+        container: mapContainer.current,
+        style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`,
+        center: [lng, lat],
+        zoom: 14
+      });
 
-    // Add user location marker if available
-    if (userLocation || (lng !== 144.9631 && lat !== -37.8136)) {
-      const userMarker = new maplibregl.Marker({ color: '#3b82f6' })
-        .setLngLat([lng, lat])
-        .addTo(map.current);
+      // Add user location marker if available
+      if (userLocation || (lng !== 144.9631 && lat !== -37.8136)) {
+        const userMarker = new maplibregl.Marker({ color: '#3b82f6' })
+          .setLngLat([lng, lat])
+          .addTo(map.current);
+      }
+
+      // Add navigation controls
+      map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+      map.current.on('load', () => {
+        loadReports();
+        
+        // Add route source and layer
+        if (map.current) {
+          map.current.addSource('route', {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: []
+              }
+            }
+          });
+
+          map.current.addLayer({
+            id: 'route',
+            type: 'line',
+            source: 'route',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round'
+            },
+            paint: {
+              'line-color': '#3b82f6',
+              'line-width': 4,
+              'line-opacity': 0.8
+            }
+          });
+
+          // Add origin/destination markers source
+          map.current.addSource('journey-points', {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: []
+            }
+          });
+
+          map.current.addLayer({
+            id: 'journey-points',
+            type: 'circle',
+            source: 'journey-points',
+            paint: {
+              'circle-radius': 8,
+              'circle-color': ['get', 'color'],
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#ffffff'
+            }
+          });
+        }
+        
+        // Add right-click handler for context menu
+        map.current?.on('contextmenu', handleMapRightClick);
+      });
+
+      // Load reports when map bounds change
+      map.current.on('moveend', loadReports);
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      toast.error('Failed to initialize map. Please check your internet connection.');
     }
-
-    // Add navigation controls
-    map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
-
-    map.current.on('load', () => {
-      loadReports();
-      
-      // Add route source and layer
-      map.current?.addSource('route', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: []
-          }
-        }
-      });
-
-      map.current?.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#3b82f6',
-          'line-width': 4,
-          'line-opacity': 0.8
-        }
-      });
-
-      // Add origin/destination markers source
-      map.current?.addSource('journey-points', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: []
-        }
-      });
-
-      map.current?.addLayer({
-        id: 'journey-points',
-        type: 'circle',
-        source: 'journey-points',
-        paint: {
-          'circle-radius': 8,
-          'circle-color': ['get', 'color'],
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
-        }
-      });
-      
-      // Add right-click handler for context menu
-      map.current?.on('contextmenu', handleMapRightClick);
-    });
-
-    // Load reports when map bounds change
-    map.current.on('moveend', loadReports);
   };
 
   const loadReports = async () => {
