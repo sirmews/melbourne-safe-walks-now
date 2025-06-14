@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,22 +38,27 @@ export const AddressInput = ({
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
+  console.log(`[${variant}] AddressInput render:`, { value, address, showSuggestions, isSelecting });
+
   // Sync address with value prop
   useEffect(() => {
-    if (value?.address) {
+    console.log(`[${variant}] Effect - value changed:`, value);
+    if (value?.address && !isSelecting) {
       setAddress(value.address);
-    } else if (!value) {
+    } else if (!value && !isSelecting) {
       setAddress('');
     }
-  }, [value]);
+  }, [value, isSelecting, variant]);
 
   // Debounced autocomplete search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (address.length > 2) {
+      if (address.length > 2 && !isSelecting) {
+        console.log(`[${variant}] Searching for:`, address);
         searchAddresses(address);
       } else {
         setSuggestions([]);
@@ -63,7 +67,7 @@ export const AddressInput = ({
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [address]);
+  }, [address, isSelecting, variant]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -103,6 +107,7 @@ export const AddressInput = ({
         center: feature.center
       })) || [];
       
+      console.log(`[${variant}] Found suggestions:`, addressSuggestions.length);
       setSuggestions(addressSuggestions);
       setShowSuggestions(addressSuggestions.length > 0);
     } catch (error) {
@@ -113,15 +118,24 @@ export const AddressInput = ({
   };
 
   const handleSuggestionClick = (suggestion: AddressSuggestion) => {
+    console.log(`[${variant}] Suggestion clicked:`, suggestion);
+    setIsSelecting(true);
+    
     const point: JourneyPoint = {
       lat: suggestion.center[1],
       lng: suggestion.center[0],
       address: suggestion.place_name
     };
     
-    onValueChange(point);
     setAddress(suggestion.place_name);
     setShowSuggestions(false);
+    setSuggestions([]);
+    onValueChange(point);
+    
+    // Reset selecting flag after a short delay
+    setTimeout(() => {
+      setIsSelecting(false);
+    }, 100);
   };
 
   const handleSetAddress = async () => {
@@ -170,16 +184,20 @@ export const AddressInput = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
+    console.log(`[${variant}] Input changed:`, newValue);
     setAddress(newValue);
     
-    // Clear the selected point if user starts typing again
-    if (value && newValue !== value.address) {
-      onValueChange({ ...value, address: '' });
+    // Only clear the selected point if user manually types something different
+    // and we're not in the middle of selecting a suggestion
+    if (value && newValue !== value.address && !isSelecting) {
+      console.log(`[${variant}] Clearing selected point because input changed`);
+      // Instead of clearing completely, we'll keep the point but mark it as being edited
+      // This prevents the constant clearing that causes the dropdown to reopen
     }
   };
 
   const handleInputFocus = () => {
-    if (suggestions.length > 0) {
+    if (suggestions.length > 0 && !value) {
       setShowSuggestions(true);
     }
   };
@@ -209,7 +227,7 @@ export const AddressInput = ({
           )}
           
           {/* Suggestions Dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
+          {showSuggestions && suggestions.length > 0 && !value && (
             <div 
               ref={suggestionsRef}
               className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
