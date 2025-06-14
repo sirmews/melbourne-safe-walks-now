@@ -123,7 +123,10 @@ RETURNS TABLE (
   created_at TIMESTAMPTZ,
   rating_avg FLOAT,
   rating_count INTEGER
-) AS $$
+) 
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
 BEGIN
   RETURN QUERY
   SELECT 
@@ -145,7 +148,4 @@ BEGIN
   )
   GROUP BY sr.id, sr.location, sr.category, sr.severity, sr.title, sr.description, sr.created_at;
 END;
-LANGUAGE plpgsql
-SECURITY INVOKER
-SET search_path = '';
-AS $$
+$$;
