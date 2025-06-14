@@ -16,6 +16,7 @@ interface MapViewProps {
 export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<{ [key: string]: maplibregl.Marker }>({});
   const [reports, setReports] = useState<SafetyReport[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -43,6 +44,9 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
     }
 
     return () => {
+      // Clean up markers
+      Object.values(markersRef.current).forEach(marker => marker.remove());
+      markersRef.current = {};
       map.current?.remove();
     };
   }, []);
@@ -94,8 +98,12 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
       
       // Add click handler for map
       map.current?.on('click', (e) => {
-        const { lng, lat } = e.lngLat;
-        onMapClick?.(lng, lat);
+        // Check if click was on a marker by looking for the safety-marker class
+        const target = e.originalEvent.target as HTMLElement;
+        if (!target.closest('.safety-marker')) {
+          const { lng, lat } = e.lngLat;
+          onMapClick?.(lng, lat);
+        }
       });
     });
 
@@ -130,12 +138,26 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
   const updateMapMarkers = (reportsData: SafetyReport[]) => {
     if (!map.current) return;
 
-    // Remove existing markers
-    const existingMarkers = document.querySelectorAll('.safety-marker');
-    existingMarkers.forEach(marker => marker.remove());
+    // Get current report IDs
+    const currentReportIds = new Set(reportsData.map(report => report.id));
+    
+    // Remove markers that are no longer needed
+    Object.keys(markersRef.current).forEach(reportId => {
+      if (!currentReportIds.has(reportId)) {
+        markersRef.current[reportId].remove();
+        delete markersRef.current[reportId];
+      }
+    });
 
-    // Add new markers
+    // Add or update markers
     reportsData.forEach(report => {
+      const reportId = report.id;
+      
+      // Skip if marker already exists
+      if (markersRef.current[reportId]) {
+        return;
+      }
+
       const markerElement = document.createElement('div');
       markerElement.className = 'safety-marker';
       markerElement.style.cssText = `
@@ -146,15 +168,31 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
         border: 2px solid white;
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         background-color: ${getSeverityColor(report.severity)};
+        transition: transform 0.2s ease;
       `;
+
+      // Add hover effect
+      markerElement.addEventListener('mouseenter', () => {
+        markerElement.style.transform = 'scale(1.2)';
+      });
+      
+      markerElement.addEventListener('mouseleave', () => {
+        markerElement.style.transform = 'scale(1)';
+      });
 
       const marker = new maplibregl.Marker(markerElement)
         .setLngLat([report.location_lng, report.location_lat])
         .addTo(map.current!);
 
-      markerElement.addEventListener('click', () => {
+      // Add click handler to marker element
+      markerElement.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent map click event
+        console.log('Marker clicked for report:', report.title);
         onReportClick?.(report);
       });
+
+      // Store marker reference
+      markersRef.current[reportId] = marker;
     });
   };
 
