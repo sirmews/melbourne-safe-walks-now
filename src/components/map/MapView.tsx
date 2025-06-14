@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -11,9 +10,12 @@ type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Re
 interface MapViewProps {
   onReportClick?: (report: SafetyReport) => void;
   onMapClick?: (lng: number, lat: number) => void;
+  route?: any;
+  origin?: { lat: number; lng: number };
+  destination?: { lat: number; lng: number };
 }
 
-export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
+export const MapView = ({ onReportClick, onMapClick, route, origin, destination }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<{ [key: string]: maplibregl.Marker }>({});
@@ -95,6 +97,55 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
 
     map.current.on('load', () => {
       loadReports();
+      
+      // Add route source and layer
+      map.current?.addSource('route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: []
+          }
+        }
+      });
+
+      map.current?.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#3b82f6',
+          'line-width': 4,
+          'line-opacity': 0.8
+        }
+      });
+
+      // Add origin/destination markers source
+      map.current?.addSource('journey-points', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      });
+
+      map.current?.addLayer({
+        id: 'journey-points',
+        type: 'circle',
+        source: 'journey-points',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': ['get', 'color'],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
       
       // Add click handler for map
       map.current?.on('click', (e) => {
@@ -198,6 +249,67 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
       default: return '#6b7280'; // gray
     }
   };
+
+  // Update route visualization when route changes
+  useEffect(() => {
+    if (!map.current) return;
+
+    const mapSource = map.current.getSource('route');
+    if (mapSource && route) {
+      (mapSource as any).setData({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: route.coordinates
+        }
+      });
+
+      // Fit map to route bounds
+      const bounds = new maplibregl.LngLatBounds();
+      route.coordinates.forEach((coord: [number, number]) => {
+        bounds.extend(coord);
+      });
+      map.current.fitBounds(bounds, { padding: 50 });
+    }
+  }, [route]);
+
+  // Update journey points when origin/destination changes
+  useEffect(() => {
+    if (!map.current) return;
+
+    const journeyPointsSource = map.current.getSource('journey-points');
+    if (journeyPointsSource) {
+      const features = [];
+      
+      if (origin) {
+        features.push({
+          type: 'Feature',
+          properties: { color: '#10b981' }, // green for origin
+          geometry: {
+            type: 'Point',
+            coordinates: [origin.lng, origin.lat]
+          }
+        });
+      }
+      
+      if (destination) {
+        features.push({
+          type: 'Feature',
+          properties: { color: '#ef4444' }, // red for destination
+          geometry: {
+            type: 'Point',
+            coordinates: [destination.lng, destination.lat]
+          }
+        });
+      }
+
+      (journeyPointsSource as any).setData({
+        type: 'FeatureCollection',
+        features
+      });
+    }
+  }, [origin, destination]);
 
   return (
     <div 

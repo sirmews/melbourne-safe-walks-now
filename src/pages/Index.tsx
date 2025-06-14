@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from '@/components/auth/AuthPage';
@@ -10,16 +9,20 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, MapPin, Shield, Users, LogIn } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { JourneyPlanner } from '@/components/journey/JourneyPlanner';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, userLocation } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showReportDetails, setShowReportDetails] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedReport, setSelectedReport] = useState<SafetyReport | null>(null);
+  const [routeData, setRouteData] = useState<any>(null);
+  const [journeyOrigin, setJourneyOrigin] = useState<{ lat: number; lng: number } | null>(null);
+  const [journeyDestination, setJourneyDestination] = useState<{ lat: number; lng: number } | null>(null);
 
   if (loading) {
     return (
@@ -48,6 +51,27 @@ const Index = () => {
     setShowAuthModal(true);
   };
 
+  const handleRouteChange = (route: any) => {
+    setRouteData(route);
+    if (route) {
+      // Extract origin and destination from route if available
+      if (route.coordinates && route.coordinates.length > 0) {
+        const coords = route.coordinates;
+        setJourneyOrigin({ 
+          lng: coords[0][0], 
+          lat: coords[0][1] 
+        });
+        setJourneyDestination({ 
+          lng: coords[coords.length - 1][0], 
+          lat: coords[coords.length - 1][1] 
+        });
+      }
+    } else {
+      setJourneyOrigin(null);
+      setJourneyDestination(null);
+    }
+  };
+
   if (showAuthModal) {
     return (
       <div className="min-h-screen relative">
@@ -71,6 +95,7 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
+            {/* Quick Actions Card */}
             <Card className="p-4">
               <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
               <Button 
@@ -92,6 +117,13 @@ const Index = () => {
               )}
             </Card>
 
+            {/* Journey Planner */}
+            <JourneyPlanner 
+              onRouteChange={handleRouteChange}
+              userLocation={userLocation}
+            />
+
+            {/* About SafePath Card */}
             <Card className="p-4">
               <h3 className="text-md font-semibold mb-3 flex items-center gap-2">
                 <Shield className="h-5 w-5 text-blue-600" />
@@ -120,6 +152,7 @@ const Index = () => {
               </div>
             </Card>
 
+            {/* Legend Card */}
             <Card className="p-4">
               <h3 className="text-md font-semibold mb-3">Legend</h3>
               <div className="space-y-2 text-sm">
@@ -149,6 +182,9 @@ const Index = () => {
               <MapView 
                 onMapClick={handleMapClick} 
                 onReportClick={handleReportClick}
+                route={routeData}
+                origin={journeyOrigin}
+                destination={journeyDestination}
               />
             </Card>
           </div>
