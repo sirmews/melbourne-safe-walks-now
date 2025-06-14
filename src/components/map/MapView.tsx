@@ -94,14 +94,18 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     map.current.on('load', () => {
+      console.log('Map loaded, loading reports...');
       loadReports();
       
       // Add click handler for map
       map.current?.on('click', (e) => {
+        console.log('Map clicked at:', e.lngLat);
         // Check if click was on a marker by looking for the safety-marker class
         const target = e.originalEvent.target as HTMLElement;
+        console.log('Click target:', target, 'Has safety-marker class:', target.closest('.safety-marker'));
         if (!target.closest('.safety-marker')) {
           const { lng, lat } = e.lngLat;
+          console.log('Calling onMapClick with:', lng, lat);
           onMapClick?.(lng, lat);
         }
       });
@@ -118,6 +122,8 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
 
+    console.log('Loading reports for bounds:', { sw: { lat: sw.lat, lng: sw.lng }, ne: { lat: ne.lat, lng: ne.lng } });
+
     try {
       const { data, error } = await supabase.rpc('get_reports_in_bounds', {
         sw_lat: sw.lat,
@@ -128,6 +134,7 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
 
       if (error) throw error;
       
+      console.log('Loaded reports:', data?.length || 0, 'reports');
       setReports(data || []);
       updateMapMarkers(data || []);
     } catch (error) {
@@ -138,12 +145,15 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
   const updateMapMarkers = (reportsData: SafetyReport[]) => {
     if (!map.current) return;
 
+    console.log('Updating markers for', reportsData.length, 'reports');
+
     // Get current report IDs
     const currentReportIds = new Set(reportsData.map(report => report.id));
     
     // Remove markers that are no longer needed
     Object.keys(markersRef.current).forEach(reportId => {
       if (!currentReportIds.has(reportId)) {
+        console.log('Removing marker for report:', reportId);
         markersRef.current[reportId].remove();
         delete markersRef.current[reportId];
       }
@@ -155,11 +165,15 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
       
       // Skip if marker already exists
       if (markersRef.current[reportId]) {
+        console.log('Marker already exists for report:', reportId);
         return;
       }
 
+      console.log('Creating marker for report:', report.title, 'at', report.location_lat, report.location_lng);
+
       const markerElement = document.createElement('div');
       markerElement.className = 'safety-marker';
+      markerElement.setAttribute('data-report-id', reportId);
       markerElement.style.cssText = `
         width: 20px;
         height: 20px;
@@ -169,31 +183,43 @@ export const MapView = ({ onReportClick, onMapClick }: MapViewProps) => {
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         background-color: ${getSeverityColor(report.severity)};
         transition: transform 0.2s ease;
+        z-index: 1000;
+        position: relative;
       `;
 
       // Add hover effect
       markerElement.addEventListener('mouseenter', () => {
+        console.log('Mouse entered marker for report:', report.title);
         markerElement.style.transform = 'scale(1.2)';
       });
       
       markerElement.addEventListener('mouseleave', () => {
+        console.log('Mouse left marker for report:', report.title);
         markerElement.style.transform = 'scale(1)';
       });
-
-      const marker = new maplibregl.Marker(markerElement)
-        .setLngLat([report.location_lng, report.location_lat])
-        .addTo(map.current!);
 
       // Add click handler to marker element
       markerElement.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent map click event
-        console.log('Marker clicked for report:', report.title);
-        onReportClick?.(report);
+        e.preventDefault();
+        console.log('MARKER CLICKED! Report:', report.title, 'ID:', report.id);
+        console.log('onReportClick callback exists:', !!onReportClick);
+        if (onReportClick) {
+          console.log('Calling onReportClick with report data');
+          onReportClick(report);
+        }
       });
+
+      const marker = new maplibregl.Marker({ element: markerElement })
+        .setLngLat([report.location_lng, report.location_lat])
+        .addTo(map.current!);
 
       // Store marker reference
       markersRef.current[reportId] = marker;
+      console.log('Marker created and stored for report:', reportId);
     });
+
+    console.log('Total markers now:', Object.keys(markersRef.current).length);
   };
 
   const getSeverityColor = (severity: string) => {
