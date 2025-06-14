@@ -7,6 +7,7 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     // Set up auth state listener
@@ -24,6 +25,19 @@ export const useAuth = () => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
+
+    // Get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        }
+      );
+    }
 
     return () => subscription.unsubscribe();
   }, []);
@@ -61,6 +75,7 @@ export const useAuth = () => {
     user,
     session,
     loading,
+    userLocation,
     signUp,
     signIn,
     signOut
