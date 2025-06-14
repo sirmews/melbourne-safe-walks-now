@@ -5,15 +5,21 @@ import { AuthPage } from '@/components/auth/AuthPage';
 import { Header } from '@/components/layout/Header';
 import { MapView } from '@/components/map/MapView';
 import { ReportModal } from '@/components/reports/ReportModal';
+import { ReportDetailsModal } from '@/components/reports/ReportDetailsModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, MapPin, Shield, Users, LogIn } from 'lucide-react';
+import { Database } from '@/integrations/supabase/types';
+
+type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showReportDetails, setShowReportDetails] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedReport, setSelectedReport] = useState<SafetyReport | null>(null);
 
   if (loading) {
     return (
@@ -26,6 +32,11 @@ const Index = () => {
   const handleMapClick = (lng: number, lat: number) => {
     setSelectedLocation({ lat, lng });
     setShowReportModal(true);
+  };
+
+  const handleReportClick = (report: SafetyReport) => {
+    setSelectedReport(report);
+    setShowReportDetails(true);
   };
 
   const handleReportCreated = () => {
@@ -95,6 +106,10 @@ const Index = () => {
                   <Users className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Community-driven data helps everyone make informed decisions about their routes</span>
                 </div>
+                <div className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 mt-0.5 text-orange-600 flex-shrink-0" />
+                  <span>Click on any existing pin to view detailed safety information</span>
+                </div>
                 {!user && (
                   <div className="mt-3 p-2 bg-blue-50 rounded-md">
                     <p className="text-xs text-blue-700">
@@ -131,7 +146,10 @@ const Index = () => {
           {/* Map */}
           <div className="lg:col-span-3">
             <Card className="h-[600px] overflow-hidden">
-              <MapView onMapClick={handleMapClick} />
+              <MapView 
+                onMapClick={handleMapClick} 
+                onReportClick={handleReportClick}
+              />
             </Card>
           </div>
         </div>
@@ -146,6 +164,12 @@ const Index = () => {
           onReportCreated={handleReportCreated}
         />
       )}
+
+      <ReportDetailsModal
+        open={showReportDetails}
+        onOpenChange={setShowReportDetails}
+        report={selectedReport}
+      />
     </div>
   );
 };
