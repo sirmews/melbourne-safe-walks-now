@@ -38,17 +38,22 @@ export const useJourneyPlanner = () => {
 
     setIsLoading(true);
     try {
-      // Use the MapTiler Directions API for walking
+      // Use the correct MapTiler Directions API format
       const response = await fetch(
-        `https://api.maptiler.com/routes/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?geometries=geojson&steps=true&key=${MAPTILER_API_KEY}`
+        `https://api.maptiler.com/directions/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?key=${MAPTILER_API_KEY}&geometries=geojson&steps=true`
       );
       
+      console.log('Route request URL:', `https://api.maptiler.com/directions/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?key=${MAPTILER_API_KEY}&geometries=geojson&steps=true`);
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to calculate route');
+        const errorText = await response.text();
+        console.error('Route API error:', errorText);
+        throw new Error(`Route calculation failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Route response data:', data);
 
       if (data.routes && data.routes.length > 0) {
         const routeData = data.routes[0];
@@ -65,7 +70,7 @@ export const useJourneyPlanner = () => {
         
         toast.success('Route calculated successfully');
       } else {
-        throw new Error('No route found.');
+        throw new Error('No route found between the selected locations.');
       }
     } catch (error) {
       console.error('Error calculating route:', error);
