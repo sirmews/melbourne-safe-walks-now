@@ -2,6 +2,12 @@
 -- Enable PostGIS extension for geospatial data
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+-- Enable RLS on PostGIS system table
+ALTER TABLE public.spatial_ref_sys ENABLE ROW LEVEL SECURITY;
+
+-- Allow everyone to read spatial reference systems (required for PostGIS operations)
+CREATE POLICY "Anyone can read spatial_ref_sys" ON public.spatial_ref_sys FOR SELECT USING (true);
+
 -- Create enum for safety report categories
 CREATE TYPE safety_category AS ENUM (
   'unlit_street',
