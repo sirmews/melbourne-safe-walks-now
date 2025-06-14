@@ -48,7 +48,7 @@ export const ReportModal = ({ open, onOpenChange, lat, lng, onReportCreated }: R
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !title || !category) return;
+    if (!title || !category) return;
 
     setLoading(true);
     try {
@@ -60,7 +60,7 @@ export const ReportModal = ({ open, onOpenChange, lat, lng, onReportCreated }: R
           category: category as any,
           severity: severity as any,
           location: `POINT(${lng} ${lat})`,
-          user_id: user.id
+          user_id: user?.id || null // Allow null for anonymous users
         });
 
       if (error) throw error;
@@ -155,3 +155,4 @@ export const ReportModal = ({ open, onOpenChange, lat, lng, onReportCreated }: R
     </Dialog>
   );
 };
+

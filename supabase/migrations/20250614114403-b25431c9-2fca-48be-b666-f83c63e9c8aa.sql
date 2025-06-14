@@ -72,17 +72,17 @@ CREATE POLICY "Users can view all profiles" ON public.profiles FOR SELECT USING 
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Users can insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Safety reports policies
+-- Safety reports policies - Allow anonymous viewing and creation
 CREATE POLICY "Anyone can view safety reports" ON public.safety_reports FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can create reports" ON public.safety_reports FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Users can update own reports" ON public.safety_reports FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own reports" ON public.safety_reports FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Anyone can create reports" ON public.safety_reports FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update own reports" ON public.safety_reports FOR UPDATE USING (auth.uid() = user_id OR auth.uid() IS NULL);
+CREATE POLICY "Users can delete own reports" ON public.safety_reports FOR DELETE USING (auth.uid() = user_id OR auth.uid() IS NULL);
 
--- Report ratings policies
+-- Report ratings policies - Allow anonymous ratings
 CREATE POLICY "Anyone can view ratings" ON public.report_ratings FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can rate reports" ON public.report_ratings FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Users can update own ratings" ON public.report_ratings FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own ratings" ON public.report_ratings FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Anyone can rate reports" ON public.report_ratings FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update own ratings" ON public.report_ratings FOR UPDATE USING (auth.uid() = user_id OR auth.uid() IS NULL);
+CREATE POLICY "Users can delete own ratings" ON public.report_ratings FOR DELETE USING (auth.uid() = user_id OR auth.uid() IS NULL);
 
 -- Function to automatically create profile on user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -140,3 +140,4 @@ BEGIN
   GROUP BY sr.id, sr.location, sr.category, sr.severity, sr.title, sr.description, sr.created_at;
 END;
 $$ LANGUAGE plpgsql;
+
