@@ -10,6 +10,8 @@ import { Card } from '@/components/ui/card';
 import { Plus, MapPin, Shield, Users, LogIn } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { JourneyPlanner } from '@/components/journey/JourneyPlanner';
+import { useJourneyPlanner } from '@/hooks/useJourneyPlanner';
+import { toast } from 'sonner';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
@@ -23,6 +25,8 @@ const Index = () => {
   const [routeData, setRouteData] = useState<any>(null);
   const [journeyOrigin, setJourneyOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [journeyDestination, setJourneyDestination] = useState<{ lat: number; lng: number } | null>(null);
+
+  const { setDestination } = useJourneyPlanner();
 
   if (loading) {
     return (
@@ -70,6 +74,15 @@ const Index = () => {
       setJourneyOrigin(null);
       setJourneyDestination(null);
     }
+  };
+
+  const handlePlanTripToLocation = (lng: number, lat: number) => {
+    setDestination({
+      lat,
+      lng,
+      address: `Location: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+    });
+    toast.success('Destination set! Plan your journey in the sidebar.');
   };
 
   if (showAuthModal) {
@@ -182,6 +195,7 @@ const Index = () => {
               <MapView 
                 onMapClick={handleMapClick} 
                 onReportClick={handleReportClick}
+                onPlanTripToLocation={handlePlanTripToLocation}
                 route={routeData}
                 origin={journeyOrigin}
                 destination={journeyDestination}

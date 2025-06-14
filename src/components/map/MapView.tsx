@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
+import { MapPopup } from './MapPopup';
 import { MapContextMenu } from './MapContextMenu';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
@@ -11,17 +12,19 @@ type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Re
 interface MapViewProps {
   onReportClick?: (report: SafetyReport) => void;
   onMapClick?: (lng: number, lat: number) => void;
+  onPlanTripToLocation?: (lng: number, lat: number) => void;
   route?: any;
   origin?: { lat: number; lng: number };
   destination?: { lat: number; lng: number };
 }
 
-export const MapView = ({ onReportClick, onMapClick, route, origin, destination }: MapViewProps) => {
+export const MapView = ({ onReportClick, onMapClick, onPlanTripToLocation, route, origin, destination }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<{ [key: string]: maplibregl.Marker }>({});
   const [reports, setReports] = useState<SafetyReport[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [popupPosition, setPopupPosition] = useState<{ lng: number; lat: number; x: number; y: number } | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ lng: number; lat: number } | null>(null);
 
   useEffect(() => {
@@ -149,8 +152,8 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
           });
         }
         
-        // Add right-click handler for context menu
-        map.current?.on('contextmenu', handleMapRightClick);
+        // Add click handler for map clicks (not on markers)
+        map.current?.on('click', handleMapClick);
       });
 
       // Load reports when map bounds change
@@ -249,26 +252,35 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
     }
   };
 
-  const handleContextMenuAction = (action: 'distance' | 'note') => {
-    if (!contextMenuPosition) return;
-
-    if (action === 'note') {
-      onMapClick?.(contextMenuPosition.lng, contextMenuPosition.lat);
-    } else if (action === 'distance') {
-      // For now, just show a toast - this could be expanded to show distance calculation
-      toast.info('Distance calculation feature coming soon!');
-    }
-    
-    setContextMenuPosition(null);
-  };
-
-  const handleMapRightClick = (e: maplibregl.MapMouseEvent) => {
+  const handleMapClick = (e: maplibregl.MapMouseEvent) => {
     // Check if click was on a marker
     const target = e.originalEvent.target as HTMLElement;
-    if (!target.closest('.safety-marker')) {
-      const { lng, lat } = e.lngLat;
-      setContextMenuPosition({ lng, lat });
+    if (target.closest('.safety-marker')) {
+      return; // Don't show popup if clicking on a marker
     }
+
+    const { lng, lat } = e.lngLat;
+    const { x, y } = e.point;
+    
+    setPopupPosition({ lng, lat, x, y });
+  };
+
+  const handlePopupSafetyReport = () => {
+    if (popupPosition) {
+      onMapClick?.(popupPosition.lng, popupPosition.lat);
+      setPopupPosition(null);
+    }
+  };
+
+  const handlePopupPlanTrip = () => {
+    if (popupPosition) {
+      onPlanTripToLocation?.(popupPosition.lng, popupPosition.lat);
+      setPopupPosition(null);
+    }
+  };
+
+  const handlePopupClose = () => {
+    setPopupPosition(null);
   };
 
   // Update route visualization when route changes
@@ -333,15 +345,30 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
   }, [origin, destination]);
 
   return (
-    <MapContextMenu
-      onAddCommunityNote={() => handleContextMenuAction('note')}
-      onMapDistance={() => handleContextMenuAction('distance')}
-    >
+    <div className="relative w-full h-full">
       <div 
         ref={mapContainer} 
         className="w-full h-full"
         style={{ minHeight: '400px' }}
       />
-    </MapContextMenu>
+      
+      {popupPosition && (
+        <div
+          style={{
+            position: 'absolute',
+            left: popupPosition.x,
+            top: popupPosition.y,
+            zIndex: 1000,
+          }}
+        >
+          <MapPopup
+            position={{ lng: popupPosition.lng, lat: popupPosition.lat }}
+            onClose={handlePopupClose}
+            onSafetyReport={handlePopupSafetyReport}
+            onPlanTrip={handlePopupPlanTrip}
+          />
+        </div>
+      )}
+    </div>
   );
 };
