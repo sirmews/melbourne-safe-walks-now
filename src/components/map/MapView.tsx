@@ -30,6 +30,7 @@ export const MapView = ({
 }: MapViewProps) => {
   const { mapContainer, map, userLocation } = useMapInitialization();
   const [popupPosition, setPopupPosition] = useState<{ lng: number; lat: number; x: number; y: number } | null>(null);
+  const [mapClickHandlerAttached, setMapClickHandlerAttached] = useState(false);
   
   const { loadReports } = useMapReports(map);
   const { updateMapMarkers, cleanup } = useMapMarkers({ map, onReportClick });
@@ -57,8 +58,9 @@ export const MapView = ({
   }, []);
 
   // Attach click handler when map is ready
-  if (map && !map.hasEventListener?.('click')) {
+  if (map && !mapClickHandlerAttached) {
     map.on('click', handleMapClick);
+    setMapClickHandlerAttached(true);
   }
 
   const handlePopupSafetyReport = () => {

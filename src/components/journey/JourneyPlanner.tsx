@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { MapPin, Route, X, Navigation } from 'lucide-react';
+import { MapPin, Route, X, Navigation, Clock, ArrowRight } from 'lucide-react';
 import { useJourneyPlanner, JourneyPoint } from '@/hooks/useJourneyPlanner';
 
 interface JourneyPlannerProps {
@@ -20,26 +20,33 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     setOrigin,
     setDestination,
     calculateRoute,
-    clearRoute
+    clearRoute,
+    getAddressFromCoordinates
   } = useJourneyPlanner();
 
   const [originAddress, setOriginAddress] = useState('');
   const [destinationAddress, setDestinationAddress] = useState('');
 
-  // Simple geocoding function (you could replace with a proper geocoding service)
+  // Update route in parent component when route changes
+  useEffect(() => {
+    onRouteChange?.(route);
+  }, [route, onRouteChange]);
+
+  // Simple geocoding function using MapTiler
   const geocodeAddress = async (address: string): Promise<JourneyPoint | null> => {
     try {
-      // Using Nominatim (OpenStreetMap) for free geocoding
+      const MAPTILER_API_KEY = 'trIkgoZsSgH2Ht8MXmzd';
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Melbourne, Australia&limit=1`
+        `https://api.maptiler.com/geocoding/${encodeURIComponent(address)}.json?key=${MAPTILER_API_KEY}&proximity=${userLocation?.lng || 144.9631},${userLocation?.lat || -37.8136}&limit=1`
       );
       const data = await response.json();
       
-      if (data.length > 0) {
+      if (data.features && data.features.length > 0) {
+        const feature = data.features[0];
         return {
-          lat: parseFloat(data[0].lat),
-          lng: parseFloat(data[0].lon),
-          address: data[0].display_name
+          lat: feature.center[1],
+          lng: feature.center[0],
+          address: feature.place_name || feature.text
         };
       }
       return null;
@@ -67,21 +74,15 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     }
   };
 
-  const handleUseCurrentLocation = () => {
+  const handleUseCurrentLocation = async () => {
     if (userLocation) {
+      const address = await getAddressFromCoordinates(userLocation.lat, userLocation.lng);
       setOrigin({
         lat: userLocation.lat,
         lng: userLocation.lng,
-        address: 'Current Location'
+        address: address
       });
-      setOriginAddress('Current Location');
-    }
-  };
-
-  const handleCalculateRoute = async () => {
-    await calculateRoute();
-    if (route) {
-      onRouteChange?.(route);
+      setOriginAddress(address);
     }
   };
 
@@ -89,7 +90,6 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     clearRoute();
     setOriginAddress('');
     setDestinationAddress('');
-    onRouteChange?.(null);
   };
 
   const formatDistance = (meters: number) => {
@@ -148,7 +148,10 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
             </Button>
           )}
           {origin && (
-            <p className="text-xs text-green-600 mt-1">✓ {origin.address}</p>
+            <div className="mt-2 p-2 bg-green-50 rounded-md border border-green-200">
+              <p className="text-xs text-green-700 font-medium">From:</p>
+              <p className="text-xs text-green-600">{origin.address}</p>
+            </div>
           )}
         </div>
 
@@ -172,20 +175,23 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
             </Button>
           </div>
           {destination && (
-            <p className="text-xs text-green-600 mt-1">✓ {destination.address}</p>
+            <div className="mt-2 p-2 bg-red-50 rounded-md border border-red-200">
+              <p className="text-xs text-red-700 font-medium">To:</p>
+              <p className="text-xs text-red-600">{destination.address}</p>
+            </div>
           )}
         </div>
 
         {/* Action Buttons */}
         <div className="flex gap-2">
           <Button
-            onClick={handleCalculateRoute}
+            onClick={calculateRoute}
             disabled={!origin || !destination || isLoading}
             className="flex-1"
           >
             {isLoading ? 'Calculating...' : 'Calculate Route'}
           </Button>
-          {route && (
+          {(route || origin || destination) && (
             <Button variant="outline" onClick={handleClearRoute}>
               <X className="h-4 w-4" />
             </Button>
@@ -194,16 +200,31 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
 
         {/* Route Info */}
         {route && (
-          <div className="p-3 bg-blue-50 rounded-md">
-            <div className="text-sm space-y-1">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Distance:</span>
+          <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+            <div className="text-sm space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  Distance:
+                </span>
                 <span className="font-medium">{formatDistance(route.distance)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Walking time:</span>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  Walking time:
+                </span>
                 <span className="font-medium">{formatDuration(route.duration)}</span>
               </div>
+              {origin && destination && (
+                <div className="pt-2 border-t border-blue-200">
+                  <div className="flex items-center gap-2 text-xs text-blue-700">
+                    <span className="font-medium truncate">{origin.address?.split(',')[0] || 'Origin'}</span>
+                    <ArrowRight className="h-3 w-3 flex-shrink-0" />
+                    <span className="font-medium truncate">{destination.address?.split(',')[0] || 'Destination'}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
