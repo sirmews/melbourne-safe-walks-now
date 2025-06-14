@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,19 +32,6 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     onRouteChange?.(route);
   }, [route, onRouteChange]);
 
-  // Sync input fields with origin/destination changes
-  useEffect(() => {
-    if (origin?.address) {
-      setOriginAddress(origin.address);
-    }
-  }, [origin]);
-
-  useEffect(() => {
-    if (destination?.address) {
-      setDestinationAddress(destination.address);
-    }
-  }, [destination]);
-
   // Simple geocoding function using MapTiler
   const geocodeAddress = async (address: string): Promise<JourneyPoint | null> => {
     try {
@@ -73,6 +61,7 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
       const point = await geocodeAddress(originAddress);
       if (point) {
         setOrigin(point);
+        setOriginAddress(point.address || originAddress); // Update input with geocoded address
       }
     }
   };
@@ -82,6 +71,7 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
       const point = await geocodeAddress(destinationAddress);
       if (point) {
         setDestination(point);
+        setDestinationAddress(point.address || destinationAddress); // Update input with geocoded address
       }
     }
   };
@@ -89,12 +79,13 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
   const handleUseCurrentLocation = async () => {
     if (userLocation) {
       const address = await getAddressFromCoordinates(userLocation.lat, userLocation.lng);
-      setOrigin({
+      const originPoint = {
         lat: userLocation.lat,
         lng: userLocation.lng,
         address: address
-      });
-      setOriginAddress(address);
+      };
+      setOrigin(originPoint);
+      setOriginAddress(address); // Update input field
     }
   };
 
@@ -103,6 +94,19 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     setOriginAddress('');
     setDestinationAddress('');
   };
+
+  // Handle external updates to origin/destination (e.g., from map clicks)
+  useEffect(() => {
+    if (origin?.address && origin.address !== originAddress) {
+      setOriginAddress(origin.address);
+    }
+  }, [origin]);
+
+  useEffect(() => {
+    if (destination?.address && destination.address !== destinationAddress) {
+      setDestinationAddress(destination.address);
+    }
+  }, [destination]);
 
   const formatDistance = (meters: number) => {
     if (meters < 1000) {
