@@ -32,10 +32,27 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     onRouteChange?.(route);
   }, [route, onRouteChange]);
 
+  // Sync input fields with origin/destination when they change externally
+  useEffect(() => {
+    if (origin?.address) {
+      setOriginAddress(origin.address);
+    } else if (!origin) {
+      setOriginAddress('');
+    }
+  }, [origin]);
+
+  useEffect(() => {
+    if (destination?.address) {
+      setDestinationAddress(destination.address);
+    } else if (!destination) {
+      setDestinationAddress('');
+    }
+  }, [destination]);
+
   // Simple geocoding function using MapTiler
   const geocodeAddress = async (address: string): Promise<JourneyPoint | null> => {
     try {
-      const MAPTILER_API_KEY = 'trIkgoZsSgH2Ht8MXmzd';
+      const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY || 'trIkgoZsSgH2Ht8MXmzd';
       const response = await fetch(
         `https://api.maptiler.com/geocoding/${encodeURIComponent(address)}.json?key=${MAPTILER_API_KEY}&proximity=${userLocation?.lng || 144.9631},${userLocation?.lat || -37.8136}&limit=1`
       );
@@ -61,7 +78,7 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
       const point = await geocodeAddress(originAddress);
       if (point) {
         setOrigin(point);
-        setOriginAddress(point.address || originAddress); // Update input with geocoded address
+        // The useEffect above will handle updating the input field
       }
     }
   };
@@ -71,7 +88,7 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
       const point = await geocodeAddress(destinationAddress);
       if (point) {
         setDestination(point);
-        setDestinationAddress(point.address || destinationAddress); // Update input with geocoded address
+        // The useEffect above will handle updating the input field
       }
     }
   };
@@ -85,7 +102,7 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
         address: address
       };
       setOrigin(originPoint);
-      setOriginAddress(address); // Update input field
+      // The useEffect above will handle updating the input field
     }
   };
 
@@ -94,19 +111,6 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     setOriginAddress('');
     setDestinationAddress('');
   };
-
-  // Handle external updates to origin/destination (e.g., from map clicks)
-  useEffect(() => {
-    if (origin?.address && origin.address !== originAddress) {
-      setOriginAddress(origin.address);
-    }
-  }, [origin]);
-
-  useEffect(() => {
-    if (destination?.address && destination.address !== destinationAddress) {
-      setDestinationAddress(destination.address);
-    }
-  }, [destination]);
 
   const formatDistance = (meters: number) => {
     if (meters < 1000) {
