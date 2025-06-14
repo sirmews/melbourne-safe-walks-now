@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
+import { MapContextMenu } from './MapContextMenu';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
@@ -21,6 +22,7 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
   const markersRef = useRef<{ [key: string]: maplibregl.Marker }>({});
   const [reports, setReports] = useState<SafetyReport[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [contextMenuPosition, setContextMenuPosition] = useState<{ lng: number; lat: number } | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -147,15 +149,8 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
         }
       });
       
-      // Add click handler for map
-      map.current?.on('click', (e) => {
-        // Check if click was on a marker by looking for the safety-marker class
-        const target = e.originalEvent.target as HTMLElement;
-        if (!target.closest('.safety-marker')) {
-          const { lng, lat } = e.lngLat;
-          onMapClick?.(lng, lat);
-        }
-      });
+      // Add right-click handler for context menu
+      map.current?.on('contextmenu', handleMapRightClick);
     });
 
     // Load reports when map bounds change
@@ -250,6 +245,28 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
     }
   };
 
+  const handleContextMenuAction = (action: 'distance' | 'note') => {
+    if (!contextMenuPosition) return;
+
+    if (action === 'note') {
+      onMapClick?.(contextMenuPosition.lng, contextMenuPosition.lat);
+    } else if (action === 'distance') {
+      // For now, just show a toast - this could be expanded to show distance calculation
+      toast.info('Distance calculation feature coming soon!');
+    }
+    
+    setContextMenuPosition(null);
+  };
+
+  const handleMapRightClick = (e: maplibregl.MapMouseEvent) => {
+    // Check if click was on a marker
+    const target = e.originalEvent.target as HTMLElement;
+    if (!target.closest('.safety-marker')) {
+      const { lng, lat } = e.lngLat;
+      setContextMenuPosition({ lng, lat });
+    }
+  };
+
   // Update route visualization when route changes
   useEffect(() => {
     if (!map.current) return;
@@ -312,10 +329,15 @@ export const MapView = ({ onReportClick, onMapClick, route, origin, destination 
   }, [origin, destination]);
 
   return (
-    <div 
-      ref={mapContainer} 
-      className="w-full h-full"
-      style={{ minHeight: '400px' }}
-    />
+    <MapContextMenu
+      onAddCommunityNote={() => handleContextMenuAction('note')}
+      onMapDistance={() => handleContextMenuAction('distance')}
+    >
+      <div 
+        ref={mapContainer} 
+        className="w-full h-full"
+        style={{ minHeight: '400px' }}
+      />
+    </MapContextMenu>
   );
 };
