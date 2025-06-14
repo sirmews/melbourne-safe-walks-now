@@ -145,4 +145,7 @@ BEGIN
   )
   GROUP BY sr.id, sr.location, sr.category, sr.severity, sr.title, sr.description, sr.created_at;
 END;
-$$ LANGUAGE plpgsql;
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = '';
+AS $$
