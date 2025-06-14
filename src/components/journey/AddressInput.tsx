@@ -22,6 +22,9 @@ interface AddressSuggestion {
   center: [number, number];
 }
 
+// Get the MapTiler API key with fallback
+const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY || 'trIkgoZsSgH2Ht8MXmzd';
+
 export const AddressInput = ({ 
   label, 
   placeholder, 
@@ -80,7 +83,6 @@ export const AddressInput = ({
 
     setIsLoading(true);
     try {
-      const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY;
       const proximityParam = userLocation 
         ? `&proximity=${userLocation.lng},${userLocation.lat}`
         : '&proximity=144.9631,-37.8136'; // Default to Melbourne
@@ -89,17 +91,20 @@ export const AddressInput = ({
         `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${MAPTILER_API_KEY}${proximityParam}&limit=5`
       );
       
-      if (response.ok) {
-        const data = await response.json();
-        const addressSuggestions = data.features?.map((feature: any) => ({
-          id: feature.id,
-          place_name: feature.place_name || feature.text,
-          center: feature.center
-        })) || [];
-        
-        setSuggestions(addressSuggestions);
-        setShowSuggestions(addressSuggestions.length > 0);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to search addresses');
       }
+
+      const data = await response.json();
+      const addressSuggestions = data.features?.map((feature: any) => ({
+        id: feature.id,
+        place_name: feature.place_name || feature.text,
+        center: feature.center
+      })) || [];
+      
+      setSuggestions(addressSuggestions);
+      setShowSuggestions(addressSuggestions.length > 0);
     } catch (error) {
       console.error('Autocomplete search error:', error);
     } finally {
@@ -131,7 +136,6 @@ export const AddressInput = ({
 
   const geocodeAddress = async (addressText: string): Promise<JourneyPoint | null> => {
     try {
-      const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY;
       const response = await fetch(
         `https://api.maptiler.com/geocoding/${encodeURIComponent(addressText)}.json?key=${MAPTILER_API_KEY}&proximity=${userLocation?.lng || 144.9631},${userLocation?.lat || -37.8136}&limit=1`
       );
