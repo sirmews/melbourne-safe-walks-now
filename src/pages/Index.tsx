@@ -7,11 +7,12 @@ import { MapView } from '@/components/map/MapView';
 import { ReportModal } from '@/components/reports/ReportModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, MapPin, Shield, Users } from 'lucide-react';
+import { Plus, MapPin, Shield, Users, LogIn } from 'lucide-react';
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   if (loading) {
@@ -20,10 +21,6 @@ const Index = () => {
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
-  }
-
-  if (!user) {
-    return <AuthPage />;
   }
 
   const handleMapClick = (lng: number, lat: number) => {
@@ -36,9 +33,28 @@ const Index = () => {
     window.location.reload(); // Simple refresh for now
   };
 
+  const handleAuthClick = () => {
+    setShowAuthModal(true);
+  };
+
+  if (showAuthModal) {
+    return (
+      <div className="min-h-screen relative">
+        <AuthPage />
+        <Button 
+          variant="outline" 
+          className="absolute top-4 right-4"
+          onClick={() => setShowAuthModal(false)}
+        >
+          Skip Login
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onAuthClick={handleAuthClick} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -53,6 +69,16 @@ const Index = () => {
                 <Plus className="h-4 w-4 mr-2" />
                 Report Safety Issue
               </Button>
+              {!user && (
+                <Button 
+                  variant="outline"
+                  onClick={handleAuthClick}
+                  className="w-full"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In / Sign Up
+                </Button>
+              )}
             </Card>
 
             <Card className="p-4">
@@ -69,6 +95,13 @@ const Index = () => {
                   <Users className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Community-driven data helps everyone make informed decisions about their routes</span>
                 </div>
+                {!user && (
+                  <div className="mt-3 p-2 bg-blue-50 rounded-md">
+                    <p className="text-xs text-blue-700">
+                      Sign up to track your reports and help build a safer community
+                    </p>
+                  </div>
+                )}
               </div>
             </Card>
 
