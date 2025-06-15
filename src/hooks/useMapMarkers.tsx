@@ -60,7 +60,17 @@ export const useMapMarkers = ({ map, onReportClick }: UseMapMarkersProps) => {
     }
   };
 
-  const getBorderColor = (category: string, severity: string): string => {
+  const getBorderColor = (category: string, severity: string, verified: boolean, flagged: boolean): string => {
+    // Flagged reports get red border
+    if (flagged) {
+      return '#dc2626';
+    }
+    
+    // Verified reports get green border
+    if (verified) {
+      return '#059669';
+    }
+    
     const safeCategories = ['well_lit_safe', 'police_presence', 'busy_safe_area', 'cctv_monitored', 'emergency_phone'];
     
     if (safeCategories.includes(category)) {
@@ -84,6 +94,16 @@ export const useMapMarkers = ({ map, onReportClick }: UseMapMarkersProps) => {
       case 'critical': return { width: 28, height: 28 };
       default: return { width: 20, height: 20 };
     }
+  };
+
+  const getStatusIndicator = (verified: boolean, flagged: boolean): string => {
+    if (flagged) {
+      return '<div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: #dc2626; border-radius: 50%; border: 1px solid white;"></div>';
+    }
+    if (verified) {
+      return '<div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: #059669; border-radius: 50%; border: 1px solid white;"></div>';
+    }
+    return '';
   };
 
   const updateMapMarkers = (reportsData: SafetyReport[]) => {
@@ -111,8 +131,9 @@ export const useMapMarkers = ({ map, onReportClick }: UseMapMarkersProps) => {
 
       const markerSize = getMarkerSize(report.severity);
       const backgroundColor = getSeverityColor(report.category, report.severity);
-      const borderColor = getBorderColor(report.category, report.severity);
+      const borderColor = getBorderColor(report.category, report.severity, report.verified, report.flagged);
       const icon = getCategoryIcon(report.category);
+      const statusIndicator = getStatusIndicator(report.verified, report.flagged);
 
       const markerElement = document.createElement('div');
       markerElement.className = 'safety-marker';
@@ -136,6 +157,7 @@ export const useMapMarkers = ({ map, onReportClick }: UseMapMarkersProps) => {
           z-index: 10;
         ">
           ${icon}
+          ${statusIndicator}
         </div>
       `;
 

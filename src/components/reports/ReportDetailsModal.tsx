@@ -1,9 +1,13 @@
 
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { MapPin, Calendar, Tag } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MapPin, Calendar, Tag, Shield, Flag, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { safetyReportsApi } from '@/services/safetyReportsApi';
+import { toast } from 'sonner';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
@@ -28,7 +32,35 @@ const formatCategory = (category: string) => {
 };
 
 export const ReportDetailsModal = ({ open, onOpenChange, report }: ReportDetailsModalProps) => {
-  if (!report) return null;
+  const [isLoading, setIsLoading] = useState(false);
+  const [localReport, setLocalReport] = useState(report);
+
+  // Update local report when prop changes
+  if (report && report !== localReport) {
+    setLocalReport(report);
+  }
+
+  if (!localReport) return null;
+
+  const handleFlagReport = async () => {
+    if (!localReport) return;
+
+    setIsLoading(true);
+    try {
+      const newFlaggedState = !localReport.flagged;
+      await safetyReportsApi.flagReport(localReport.id, newFlaggedState);
+      
+      // Update local state
+      setLocalReport({ ...localReport, flagged: newFlaggedState });
+      
+      toast.success(newFlaggedState ? 'Report flagged successfully' : 'Report unflagged successfully');
+    } catch (error) {
+      console.error('Error flagging report:', error);
+      toast.error('Failed to flag report. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -42,41 +74,77 @@ export const ReportDetailsModal = ({ open, onOpenChange, report }: ReportDetails
         
         <div className="space-y-4">
           <Card className="p-4">
-            <h3 className="font-semibold text-lg mb-2">{report.title}</h3>
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="font-semibold text-lg">{localReport.title}</h3>
+              <div className="flex items-center gap-2">
+                {localReport.verified && (
+                  <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-600">
+                    <CheckCircle className="h-3 w-3" />
+                    Verified
+                  </Badge>
+                )}
+                {localReport.flagged && (
+                  <Badge variant="destructive" className="flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Flagged
+                  </Badge>
+                )}
+              </div>
+            </div>
             
             <div className="flex items-center gap-2 mb-3">
               <Badge variant="outline" className="flex items-center gap-1">
                 <Tag className="h-3 w-3" />
-                {formatCategory(report.category)}
+                {formatCategory(localReport.category)}
               </Badge>
-              <div className={`w-3 h-3 rounded-full ${getSeverityColor(report.severity)}`}></div>
-              <span className="text-sm text-gray-600 capitalize">{report.severity} Risk</span>
+              <div className={`w-3 h-3 rounded-full ${getSeverityColor(localReport.severity)}`}></div>
+              <span className="text-sm text-gray-600 capitalize">{localReport.severity} Risk</span>
             </div>
 
-            {report.description && (
-              <p className="text-gray-700 mb-3">{report.description}</p>
+            {localReport.description && (
+              <p className="text-gray-700 mb-3">{localReport.description}</p>
             )}
 
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
               <Calendar className="h-4 w-4" />
               <span>
-                Reported on {new Date(report.created_at).toLocaleDateString()} at{' '}
-                {new Date(report.created_at).toLocaleTimeString()}
+                Reported on {new Date(localReport.created_at).toLocaleDateString()} at{' '}
+                {new Date(localReport.created_at).toLocaleTimeString()}
               </span>
             </div>
 
-            <div className="mt-3 text-sm text-gray-600">
-              <p>Location: {report.location_lat.toFixed(6)}, {report.location_lng.toFixed(6)}</p>
+            <div className="text-sm text-gray-600 mb-3">
+              <p>Location: {localReport.location_lat.toFixed(6)}, {localReport.location_lng.toFixed(6)}</p>
             </div>
 
-            {report.rating_count > 0 && (
-              <div className="mt-3 p-2 bg-gray-50 rounded">
+            {localReport.rating_count > 0 && (
+              <div className="p-2 bg-gray-50 rounded mb-3">
                 <p className="text-sm">
-                  Community Rating: {report.rating_avg.toFixed(1)}/5 
-                  ({report.rating_count} rating{report.rating_count !== 1 ? 's' : ''})
+                  Community Rating: {localReport.rating_avg.toFixed(1)}/5 
+                  ({localReport.rating_count} rating{localReport.rating_count !== 1 ? 's' : ''})
                 </p>
               </div>
             )}
+
+            <div className="flex items-center gap-2 pt-2 border-t">
+              <Button
+                variant={localReport.flagged ? "destructive" : "outline"}
+                size="sm"
+                onClick={handleFlagReport}
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                <Flag className="h-4 w-4" />
+                {isLoading ? 'Processing...' : (localReport.flagged ? 'Unflag Report' : 'Flag Report')}
+              </Button>
+              
+              {localReport.verified && (
+                <div className="flex items-center gap-1 text-sm text-green-600">
+                  <Shield className="h-4 w-4" />
+                  <span>Community Verified</span>
+                </div>
+              )}
+            </div>
           </Card>
         </div>
       </DialogContent>

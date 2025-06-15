@@ -55,5 +55,23 @@ export const safetyReportsApi = {
     }
 
     return response.json();
+  },
+
+  async flagReport(reportId: string, flagged: boolean) {
+    const response = await fetch(`${FUNCTIONS_URL}/flag-report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ reportId, flagged })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to flag report');
+    }
+
+    return response.json();
   }
 };

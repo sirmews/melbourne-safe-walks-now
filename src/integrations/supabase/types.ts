@@ -108,6 +108,7 @@ export type Database = {
           category: Database["public"]["Enums"]["safety_category"]
           created_at: string | null
           description: string | null
+          flagged: boolean | null
           id: string
           location: unknown
           photo_urls: string[] | null
@@ -122,6 +123,7 @@ export type Database = {
           category: Database["public"]["Enums"]["safety_category"]
           created_at?: string | null
           description?: string | null
+          flagged?: boolean | null
           id?: string
           location: unknown
           photo_urls?: string[] | null
@@ -136,6 +138,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["safety_category"]
           created_at?: string | null
           description?: string | null
+          flagged?: boolean | null
           id?: string
           location?: unknown
           photo_urls?: string[] | null
@@ -173,6 +176,8 @@ export type Database = {
           created_at: string
           rating_avg: number
           rating_count: number
+          verified: boolean
+          flagged: boolean
         }[]
       }
     }
