@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,8 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { safetyReportsApi } from '@/services/safetyReportsApi';
 import { toast } from 'sonner';
 
 interface ReportModalProps {
@@ -39,7 +37,6 @@ const SEVERITIES = [
 ];
 
 export const ReportModal = ({ open, onOpenChange, lat, lng, onReportCreated }: ReportModalProps) => {
-  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -52,18 +49,14 @@ export const ReportModal = ({ open, onOpenChange, lat, lng, onReportCreated }: R
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('safety_reports')
-        .insert({
-          title,
-          description,
-          category: category as any,
-          severity: severity as any,
-          location: `POINT(${lng} ${lat})`,
-          user_id: user?.id || null // Allow null for anonymous users
-        });
-
-      if (error) throw error;
+      await safetyReportsApi.createReport({
+        title,
+        description,
+        category,
+        severity,
+        lat,
+        lng
+      });
 
       toast.success('Safety report created successfully!');
       onReportCreated();
@@ -74,9 +67,13 @@ export const ReportModal = ({ open, onOpenChange, lat, lng, onReportCreated }: R
       setDescription('');
       setCategory('');
       setSeverity('medium');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating report:', error);
-      toast.error('Failed to create report. Please try again.');
+      if (error.message.includes('Rate limit exceeded')) {
+        toast.error('Too many reports submitted. Please wait before submitting another.');
+      } else {
+        toast.error('Failed to create report. Please try again.');
+      }
     }
     setLoading(false);
   };
@@ -155,4 +152,3 @@ export const ReportModal = ({ open, onOpenChange, lat, lng, onReportCreated }: R
     </Dialog>
   );
 };
-
