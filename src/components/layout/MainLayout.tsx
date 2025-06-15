@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { MapView } from '@/components/map/MapView';
 import { JourneyPlanner } from '@/components/journey/JourneyPlanner';
+import { AboutSafePathCard } from './AboutSafePathCard';
 import { Database } from '@/integrations/supabase/types';
 import { JourneyPoint, Route } from '@/hooks/useJourneyPlanner';
 
@@ -48,8 +49,9 @@ export const MainLayout = ({
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Journey Planner Sidebar */}
+        {/* Sidebar with About SafePath Card */}
         <div className="lg:col-span-1">
+          <AboutSafePathCard />
           <JourneyPlanner 
             userLocation={userLocation}
             origin={origin}
