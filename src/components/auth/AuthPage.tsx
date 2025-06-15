@@ -22,10 +22,8 @@ export const AuthPage = () => {
     setLoading(true);
     setError(null);
 
-    const { error } = await signIn(email, password);
-    if (error) {
-      setError(error.message);
-    }
+    // Since auth is removed, just show a message
+    setError('Authentication has been removed. SafePath is now fully anonymous!');
     setLoading(false);
   };
 
@@ -34,12 +32,8 @@ export const AuthPage = () => {
     setLoading(true);
     setError(null);
 
-    const { error } = await signUp(email, password, username);
-    if (error) {
-      setError(error.message);
-    } else {
-      setError('Check your email for a confirmation link!');
-    }
+    // Since auth is removed, just show a message
+    setError('Authentication has been removed. SafePath is now fully anonymous!');
     setLoading(false);
   };
 
@@ -57,78 +51,18 @@ export const AuthPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Signing in...' : 'Sign In'}
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Creating account...' : 'Sign Up'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <div className="text-center space-y-4">
+            <h3 className="text-lg font-semibold">No Authentication Required</h3>
+            <p className="text-gray-600">
+              SafePath is now fully anonymous! You can submit safety reports, plan routes, and view safety information without creating an account.
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/'}
+              className="w-full"
+            >
+              Go to SafePath Map
+            </Button>
+          </div>
           
           {error && (
             <Alert className="mt-4">
