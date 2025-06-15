@@ -62,7 +62,7 @@ export const JourneyPlanner = ({
         </div>
         
         {/* Construction Notice */}
-        <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-200">
+        <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-300 ">
           <Construction className="h-3 w-3" />
           <span>This feature is currently under construction.</span>
         </div>
