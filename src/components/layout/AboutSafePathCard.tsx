@@ -1,9 +1,6 @@
-
 import { MapPin, Shield, Users } from 'lucide-react';
-
 export const AboutSafePathCard = () => {
-  return (
-    <div className="p-4">
+  return <div className="p-4 px-0 py-0">
       <div className="space-y-3 text-sm text-gray-600">
         <div className="flex items-start gap-2">
           <MapPin className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
@@ -23,6 +20,5 @@ export const AboutSafePathCard = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
