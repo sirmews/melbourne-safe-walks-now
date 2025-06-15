@@ -29,7 +29,8 @@ export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapP
         </Button>
       </div>
       
-      <div className="flex gap-2">
+      <div className="grid grid-cols-2 gap-2">
+        <div className='flex-1 flex'>
         <Button
           variant="outline"
           size="sm"
@@ -39,7 +40,8 @@ export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapP
           <Shield className="h-5 w-5 mb-1 text-blue-600" />
           <span className="text-xs">Safety Report</span>
         </Button>
-        
+        </div>
+        <div className='flex-1 flex'>
         <Button
           variant="outline"
           size="sm"
@@ -49,6 +51,7 @@ export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapP
           <Navigation className="h-5 w-5 mb-1 text-green-600" />
           <span className="text-xs">Plan Trip</span>
         </Button>
+        </div>
       </div>
       
       <div className="text-xs text-gray-500 mt-2 text-center">

@@ -107,9 +107,9 @@ const Index = () => {
 
   const handlePlanTripToLocation = async (lng: number, lat: number) => {
     try {
-      toast.loading('Finding address...');
-      const address = await getAddressFromCoordinates(lat, lng);
       
+      const address = await getAddressFromCoordinates(lat, lng);
+      console.log('Setting destination:', { lat, lng, address });
       setDestination({
         lat,
         lng,

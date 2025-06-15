@@ -38,6 +38,12 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     clearRoute();
   };
 
+  useEffect(() => {
+    console.log('JourneyPlanner mounted');
+    console.log('User destination:', destination);
+
+  }, [destination, origin]);
+
   return (
     <Card className="p-4 space-y-4">
       <div className="flex items-center gap-2 mb-3">
