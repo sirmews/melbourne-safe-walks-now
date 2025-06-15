@@ -1,7 +1,5 @@
-
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Route, X, Shield, Construction } from 'lucide-react';
@@ -50,12 +48,7 @@ export const JourneyPlanner = ({
   }, [destination, origin]);
 
   return (
-    <Card className="p-4 space-y-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Route className="h-5 w-5 text-blue-600" />
-        <h3 className="text-lg font-semibold">Plan Journey</h3>
-      </div>
-
+    <div className="p-4 space-y-4">
       <div className="space-y-3">
         <AddressInput
           label="From"
@@ -122,6 +115,6 @@ export const JourneyPlanner = ({
           />
         )}
       </div>
-    </Card>
+    </div>
   );
 };
