@@ -50,12 +50,16 @@ export const useSafeRouting = () => {
     origin: { lat: number; lng: number },
     destination: { lat: number; lng: number }
   ): Promise<[number, number][]> => {
-    // Get area bounds between origin and destination
+    // Expand search area to find more reports
+    const latDiff = Math.abs(destination.lat - origin.lat);
+    const lngDiff = Math.abs(destination.lng - origin.lng);
+    const buffer = Math.max(latDiff, lngDiff) * 0.5 + 0.01; // Dynamic buffer based on distance
+
     const bounds = {
-      north: Math.max(origin.lat, destination.lat) + 0.01,
-      south: Math.min(origin.lat, destination.lat) - 0.01,
-      east: Math.max(origin.lng, destination.lng) + 0.01,
-      west: Math.min(origin.lng, destination.lng) + 0.01
+      north: Math.max(origin.lat, destination.lat) + buffer,
+      south: Math.min(origin.lat, destination.lat) - buffer,
+      east: Math.max(origin.lng, destination.lng) + buffer,
+      west: Math.min(origin.lng, destination.lng) - buffer
     };
 
     try {
@@ -68,10 +72,7 @@ export const useSafeRouting = () => {
 
       if (error) throw error;
 
-      // Find safe areas (positive safety reports)
-      const safeAreas = (reports || []).filter(report => 
-        ['well_lit_safe', 'police_presence', 'busy_safe_area'].includes(report.category)
-      );
+      console.log('Safe routing: Found reports:', reports?.length || 0);
 
       // Find dangerous areas to avoid
       const dangerousAreas = (reports || []).filter(report => 
@@ -79,8 +80,18 @@ export const useSafeRouting = () => {
         ['high', 'critical'].includes(report.severity)
       );
 
-      // Generate waypoints that go through safe areas and avoid dangerous ones
-      return calculateOptimalWaypoints(origin, destination, safeAreas, dangerousAreas);
+      console.log('Safe routing: Found dangerous areas:', dangerousAreas.length);
+
+      // If no dangerous areas, return empty waypoints (use direct route)
+      if (dangerousAreas.length === 0) {
+        return [];
+      }
+
+      // Calculate detour waypoints to avoid dangerous areas
+      const waypoints = calculateDetourWaypoints(origin, destination, dangerousAreas);
+      console.log('Safe routing: Generated waypoints:', waypoints.length);
+      
+      return waypoints;
     } catch (error) {
       console.error('Error generating safe waypoints:', error);
       return [];
@@ -213,35 +224,64 @@ function distanceToLineSegment(
   return Math.sqrt(dpx * dpx + dpy * dpy);
 }
 
-function calculateOptimalWaypoints(
+function calculateDetourWaypoints(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number },
-  safeAreas: SafetyReport[],
   dangerousAreas: SafetyReport[]
 ): [number, number][] {
   const waypoints: [number, number][] = [];
   
-  // Simple approach: if there are dangerous areas between origin and destination,
-  // try to route through safe areas
-  if (dangerousAreas.length > 0 && safeAreas.length > 0) {
-    // Find safe areas that are roughly between origin and destination
-    const midLat = (origin.lat + destination.lat) / 2;
-    const midLng = (origin.lng + destination.lng) / 2;
-    
-    const nearbyThreshold = 0.01; // ~1km
-    const nearbySafeAreas = safeAreas.filter(area => {
-      const distanceToMid = Math.sqrt(
-        Math.pow(area.location_lat - midLat, 2) + 
-        Math.pow(area.location_lng - midLng, 2)
-      );
-      return distanceToMid < nearbyThreshold;
-    });
-    
-    // Add the best safe area as a waypoint
-    if (nearbySafeAreas.length > 0) {
-      const bestSafeArea = nearbySafeAreas[0]; // Could be improved with better selection logic
-      waypoints.push([bestSafeArea.location_lng, bestSafeArea.location_lat]);
-    }
+  // Check if direct path goes through dangerous areas
+  const directPath: [number, number][] = [
+    [origin.lng, origin.lat],
+    [destination.lng, destination.lat]
+  ];
+  
+  const dangerousOnRoute = dangerousAreas.filter(area => {
+    const distanceToPath = distanceToLineSegment(
+      [area.location_lng, area.location_lat],
+      directPath[0],
+      directPath[1]
+    );
+    return distanceToPath < 0.003; // ~300m threshold
+  });
+  
+  if (dangerousOnRoute.length === 0) {
+    return waypoints; // No dangerous areas on direct route
+  }
+  
+  console.log('Safe routing: Found dangerous areas on direct route:', dangerousOnRoute.length);
+  
+  // Create waypoints to go around dangerous areas
+  const midLat = (origin.lat + destination.lat) / 2;
+  const midLng = (origin.lng + destination.lng) / 2;
+  
+  // Calculate perpendicular offset to avoid dangerous areas
+  const latOffset = (destination.lat - origin.lat);
+  const lngOffset = (destination.lng - origin.lng);
+  
+  // Create two potential detour points (left and right of the direct line)
+  const detourDistance = 0.005; // ~500m detour
+  const perpLat = -lngOffset * detourDistance;
+  const perpLng = latOffset * detourDistance;
+  
+  const leftDetour = [midLng + perpLng, midLat + perpLat] as [number, number];
+  const rightDetour = [midLng - perpLng, midLat - perpLat] as [number, number];
+  
+  // Choose the detour point that's further from dangerous areas
+  const leftDistance = Math.min(...dangerousOnRoute.map(area => 
+    Math.sqrt(Math.pow(area.location_lng - leftDetour[0], 2) + Math.pow(area.location_lat - leftDetour[1], 2))
+  ));
+  
+  const rightDistance = Math.min(...dangerousOnRoute.map(area => 
+    Math.sqrt(Math.pow(area.location_lng - rightDetour[0], 2) + Math.pow(area.location_lat - rightDetour[1], 2))
+  ));
+  
+  // Add the safer detour point as a waypoint
+  if (leftDistance > rightDistance) {
+    waypoints.push(leftDetour);
+  } else {
+    waypoints.push(rightDetour);
   }
   
   return waypoints;
