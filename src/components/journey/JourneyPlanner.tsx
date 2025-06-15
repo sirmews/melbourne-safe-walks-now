@@ -46,7 +46,7 @@ export const JourneyPlanner = ({
     console.log('User destination:', destination);
     console.log('User origin:', origin);
   }, [destination, origin]);
-  return <div className="p-4 space-y-4 px-0">
+  return <div className="p-4 space-y-4 px-0 py-0">
       <div className="space-y-3">
         <AddressInput label="From" placeholder="Enter origin address..." value={origin} onValueChange={setOrigin} userLocation={userLocation} showCurrentLocationButton={true} variant="origin" getAddressFromCoordinates={getAddressFromCoordinates} />
 
