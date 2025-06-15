@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
@@ -43,9 +44,14 @@ export const useSafeRouting = () => {
     setIsAnalyzing(true);
     
     try {
-      // Create a buffer around the route to check for nearby safety reports
+      console.log('Analyzing route safety for coordinates:', routeCoordinates.length, 'points');
+      
+      // Create a larger buffer around the route to check for nearby safety reports
       const routeBounds = getRouteBounds(routeCoordinates);
-      const buffer = 0.005; // ~500m buffer around route
+      const buffer = 0.01; // Increased to ~1km buffer around route
+      
+      console.log('Route bounds:', routeBounds);
+      console.log('Buffer size:', buffer);
       
       const { data: reports, error } = await supabase.rpc('get_reports_in_bounds', {
         sw_lat: routeBounds.south - buffer,
@@ -54,15 +60,26 @@ export const useSafeRouting = () => {
         ne_lng: routeBounds.east + buffer
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching safety reports:', error);
+        throw error;
+      }
 
-      return calculateSafetyMetrics(reports || [], routeCoordinates);
+      console.log('Found safety reports for analysis:', reports?.length || 0);
+      if (reports && reports.length > 0) {
+        console.log('Sample reports:', reports.slice(0, 3));
+      }
+
+      const analysis = calculateSafetyMetrics(reports || [], routeCoordinates);
+      console.log('Calculated safety analysis:', analysis);
+      
+      return analysis;
     } catch (error) {
       console.error('Error analyzing route safety:', error);
       return {
         riskScore: 50,
         riskLevel: 'medium',
-        safetyNotes: ['Unable to analyze route safety'],
+        safetyNotes: ['Unable to analyze route safety - using default risk level'],
         dangerousAreas: []
       };
     } finally {
@@ -158,6 +175,19 @@ function calculateSafetyMetrics(
   const safetyNotes: string[] = [];
   let riskScore = 0;
 
+  console.log('Calculating safety metrics for', reports.length, 'reports');
+
+  // If no reports found, assign a neutral risk score
+  if (reports.length === 0) {
+    console.log('No safety reports found in area - assigning neutral risk');
+    return {
+      riskScore: 30,
+      riskLevel: 'low',
+      safetyNotes: ['No safety reports found in this area'],
+      dangerousAreas: []
+    };
+  }
+
   // Analyze each report's impact on the route
   reports.forEach(report => {
     const distance = getMinDistanceToRoute(
@@ -165,8 +195,10 @@ function calculateSafetyMetrics(
       routeCoordinates
     );
 
-    // Only consider reports within 200m of the route
-    if (distance < 0.002) {
+    console.log(`Report ${report.id}: category=${report.category}, severity=${report.severity}, distance=${distance}`);
+
+    // Consider reports within 500m of the route (increased from 200m)
+    if (distance < 0.005) {
       const impact = getSeverityImpact(report.severity, distance);
       
       if (['dangerous_area', 'crime_hotspot', 'unlit_street', 'suspicious_activity'].includes(report.category)) {
@@ -176,9 +208,11 @@ function calculateSafetyMetrics(
           lng: report.location_lng,
           reason: `${report.category.replace('_', ' ')}: ${report.title}`
         });
-      } else if (['well_lit_safe', 'police_presence', 'busy_safe_area'].includes(report.category)) {
+        console.log(`Added dangerous area: ${report.title}, impact: ${impact}`);
+      } else if (['well_lit_safe', 'police_presence', 'busy_safe_area', 'cctv_monitored'].includes(report.category)) {
         riskScore -= impact * 0.5; // Positive areas reduce risk
         safetyNotes.push(`Safe area: ${report.title}`);
+        console.log(`Added safe area: ${report.title}, risk reduction: ${impact * 0.5}`);
       }
     }
   });
@@ -191,6 +225,8 @@ function calculateSafetyMetrics(
     riskScore >= 50 ? 'high' :
     riskScore >= 25 ? 'medium' : 'low';
 
+  console.log(`Final risk calculation: score=${riskScore}, level=${riskLevel}`);
+
   return {
     riskScore,
     riskLevel,
@@ -201,14 +237,14 @@ function calculateSafetyMetrics(
 
 function getSeverityImpact(severity: string, distance: number): number {
   const severityMultiplier = {
-    low: 5,
-    medium: 15,
-    high: 30,
-    critical: 50
-  }[severity] || 15;
+    low: 10,
+    medium: 25,
+    high: 40,
+    critical: 60
+  }[severity] || 25;
 
   // Closer reports have more impact
-  const distanceMultiplier = Math.max(0.1, 1 - (distance / 0.002));
+  const distanceMultiplier = Math.max(0.1, 1 - (distance / 0.005));
   
   return severityMultiplier * distanceMultiplier;
 }
