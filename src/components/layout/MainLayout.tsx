@@ -5,8 +5,9 @@ import { MapView } from '@/components/map/MapView';
 import { JourneyPlanner } from '@/components/journey/JourneyPlanner';
 import { AboutSafePathCard } from './AboutSafePathCard';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Shield, Route } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
-import { JourneyPoint, Route } from '@/hooks/useJourneyPlanner';
+import { JourneyPoint, Route as JourneyRoute } from '@/hooks/useJourneyPlanner';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
@@ -14,7 +15,7 @@ interface MainLayoutProps {
   userLocation: { lat: number; lng: number } | null;
   origin: JourneyPoint | null;
   destination: JourneyPoint | null;
-  route: Route | null;
+  route: JourneyRoute | null;
   isLoading: boolean;
   useSafeRouting: boolean;
   setOrigin: (point: JourneyPoint | null) => void;
@@ -52,38 +53,46 @@ export const MainLayout = ({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar with Accordion */}
         <div className="lg:col-span-1">
-          <Accordion type="multiple" defaultValue={["about", "journey"]} className="space-y-4">
-            <AccordionItem value="about">
-              <AccordionTrigger className="text-base font-semibold">
-                About SafePath
-              </AccordionTrigger>
-              <AccordionContent>
-                <AboutSafePathCard />
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="journey">
-              <AccordionTrigger className="text-base font-semibold">
-                Plan Journey
-              </AccordionTrigger>
-              <AccordionContent>
-                <JourneyPlanner 
-                  userLocation={userLocation}
-                  origin={origin}
-                  destination={destination}
-                  route={route}
-                  isLoading={isLoading}
-                  useSafeRouting={useSafeRouting}
-                  setOrigin={setOrigin}
-                  setDestination={setDestination}
-                  setUseSafeRouting={setUseSafeRouting}
-                  calculateRoute={calculateRoute}
-                  clearRoute={clearRoute}
-                  getAddressFromCoordinates={getAddressFromCoordinates}
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <Card>
+            <Accordion type="multiple" defaultValue={["about", "journey"]} className="p-4">
+              <AccordionItem value="about" className="border-b-0">
+                <AccordionTrigger className="text-base font-semibold hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-blue-600" />
+                    About SafePath
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <AboutSafePathCard />
+                </AccordionContent>
+              </AccordionItem>
+              
+              <AccordionItem value="journey" className="border-b-0">
+                <AccordionTrigger className="text-base font-semibold hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <Route className="h-5 w-5 text-blue-600" />
+                    Plan Journey
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <JourneyPlanner 
+                    userLocation={userLocation}
+                    origin={origin}
+                    destination={destination}
+                    route={route}
+                    isLoading={isLoading}
+                    useSafeRouting={useSafeRouting}
+                    setOrigin={setOrigin}
+                    setDestination={setDestination}
+                    setUseSafeRouting={setUseSafeRouting}
+                    calculateRoute={calculateRoute}
+                    clearRoute={clearRoute}
+                    getAddressFromCoordinates={getAddressFromCoordinates}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </Card>
         </div>
 
         {/* Map */}
