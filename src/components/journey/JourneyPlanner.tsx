@@ -5,30 +5,42 @@ import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Route, X, Shield } from 'lucide-react';
-import { useJourneyPlanner } from '@/hooks/useJourneyPlanner';
+import { JourneyPoint, Route as JourneyRoute } from '@/hooks/useJourneyPlanner';
 import { AddressInput } from './AddressInput';
 import { RouteInfo } from './RouteInfo';
 
 interface JourneyPlannerProps {
   onRouteChange?: (route: any) => void;
   userLocation?: { lat: number; lng: number } | null;
+  // Journey state props
+  origin: JourneyPoint | null;
+  destination: JourneyPoint | null;
+  route: JourneyRoute | null;
+  isLoading: boolean;
+  useSafeRouting: boolean;
+  setOrigin: (point: JourneyPoint | null) => void;
+  setDestination: (point: JourneyPoint | null) => void;
+  setUseSafeRouting: (enabled: boolean) => void;
+  calculateRoute: () => void;
+  clearRoute: () => void;
+  getAddressFromCoordinates: (lat: number, lng: number) => Promise<string>;
 }
 
-export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerProps) => {
-  const {
-    origin,
-    destination,
-    route,
-    isLoading,
-    useSafeRouting,
-    setOrigin,
-    setDestination,
-    setUseSafeRouting,
-    calculateRoute,
-    clearRoute,
-    getAddressFromCoordinates
-  } = useJourneyPlanner();
-
+export const JourneyPlanner = ({ 
+  onRouteChange, 
+  userLocation,
+  origin,
+  destination,
+  route,
+  isLoading,
+  useSafeRouting,
+  setOrigin,
+  setDestination,
+  setUseSafeRouting,
+  calculateRoute,
+  clearRoute,
+  getAddressFromCoordinates
+}: JourneyPlannerProps) => {
   // Update route in parent component when route changes
   useEffect(() => {
     onRouteChange?.(route);
@@ -41,7 +53,7 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
   useEffect(() => {
     console.log('JourneyPlanner mounted');
     console.log('User destination:', destination);
-
+    console.log('User origin:', origin);
   }, [destination, origin]);
 
   return (

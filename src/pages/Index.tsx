@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from '@/components/auth/AuthPage';
@@ -30,7 +29,20 @@ const Index = () => {
   const [journeyOrigin, setJourneyOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [journeyDestination, setJourneyDestination] = useState<{ lat: number; lng: number } | null>(null);
 
-  const { setDestination } = useJourneyPlanner();
+  // Use the journey planner hook here in the main component
+  const {
+    origin,
+    destination,
+    route,
+    isLoading,
+    useSafeRouting,
+    setOrigin,
+    setDestination,
+    setUseSafeRouting,
+    calculateRoute,
+    clearRoute,
+    getAddressFromCoordinates
+  } = useJourneyPlanner();
 
   if (loading) {
     return (
@@ -80,34 +92,8 @@ const Index = () => {
     }
   };
 
-  const getAddressFromCoordinates = async (lat: number, lng: number): Promise<string> => {
-    if (!MAPBOX_API_KEY || MAPBOX_API_KEY === 'pk.your_mapbox_token_here') {
-      console.error('Mapbox API key is missing');
-      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    }
-    
-    try {
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_API_KEY}&limit=1&country=au`
-      );
-      
-      const data = await response.json();
-      
-      if (data.features && data.features.length > 0) {
-        const feature = data.features[0];
-        return feature.place_name || feature.text || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-      }
-      
-      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    } catch (error) {
-      console.error('Error getting address:', error);
-      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    }
-  };
-
   const handlePlanTripToLocation = async (lng: number, lat: number) => {
     try {
-      
       const address = await getAddressFromCoordinates(lat, lng);
       console.log('Setting destination:', { lat, lng, address });
       setDestination({
@@ -150,6 +136,17 @@ const Index = () => {
             <JourneyPlanner 
               onRouteChange={handleRouteChange}
               userLocation={userLocation}
+              origin={origin}
+              destination={destination}
+              route={route}
+              isLoading={isLoading}
+              useSafeRouting={useSafeRouting}
+              setOrigin={setOrigin}
+              setDestination={setDestination}
+              setUseSafeRouting={setUseSafeRouting}
+              calculateRoute={calculateRoute}
+              clearRoute={clearRoute}
+              getAddressFromCoordinates={getAddressFromCoordinates}
             />
 
             {/* About SafePath Card */}
