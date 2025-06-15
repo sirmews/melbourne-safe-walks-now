@@ -168,12 +168,12 @@ BEGIN
       ) as danger_areas,
       
       -- Convert text array to JSONB array properly
-      jsonb_agg(
-        'Safe area: ' || title
-      ) FILTER (
-        WHERE category IN ('well_lit_safe', 'police_presence', 'busy_safe_area')
-        AND distance_km < 0.5
-      ) as safety_notes_jsonb
+jsonb_agg(
+  jsonb_build_object('note', 'Safe area: ' || title)
+) FILTER (
+  WHERE category IN ('well_lit_safe', 'police_presence', 'busy_safe_area')
+  AND distance_km < 0.5
+) as safety_notes_jsonb
       
     FROM nearby_reports
   )
