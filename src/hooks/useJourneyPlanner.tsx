@@ -16,7 +16,7 @@ export interface Route {
 }
 
 // Get the Mapbox API key from environment variables
-const MAPBOX_API_KEY = import.meta.env.VITE_MAPBOX_API_KEY || 'pk.your_mapbox_token_here';
+const MAPBOX_API_KEY = import.meta.env.VITE_MAPBOX_API_KEY || 'pk.eyJ1Ijoic2lybWV3cyIsImEiOiJjbWJ4MGFzYXYxNGNxMm1wdWFkcDh3NGFqIn0.pm0S2cGStEHWbhcOCOtJgA';
 
 export const useJourneyPlanner = () => {
   const [origin, setOrigin] = useState<JourneyPoint | null>(null);
