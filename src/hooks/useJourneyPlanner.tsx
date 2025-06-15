@@ -86,13 +86,16 @@ export const useJourneyPlanner = () => {
     setDestination(null);
   };
 
-  // Helper function to get a short address from coordinates using MapTiler (for geocoding only)
+  // Helper function to get a short address from coordinates using Mapbox Geocoding API
   const getAddressFromCoordinates = async (lat: number, lng: number): Promise<string> => {
-    const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY || 'trIkgoZsSgH2Ht8MXmzd';
+    if (!MAPBOX_API_KEY || MAPBOX_API_KEY === 'pk.your_mapbox_token_here') {
+      console.error('Mapbox API key is missing');
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
     
     try {
       const response = await fetch(
-        `https://api.maptiler.com/geocoding/${lng},${lat}.json?key=${MAPTILER_API_KEY}&language=en`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_API_KEY}&limit=1&country=au`
       );
       
       const data = await response.json();

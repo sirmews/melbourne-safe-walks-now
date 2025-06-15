@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,8 +22,8 @@ interface AddressSuggestion {
   center: [number, number];
 }
 
-// Get the MapTiler API key with fallback
-const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY || 'trIkgoZsSgH2Ht8MXmzd';
+// Get the Mapbox API key
+const MAPBOX_API_KEY = import.meta.env.VITE_MAPBOX_API_KEY || 'pk.your_mapbox_token_here';
 
 export const AddressInput = ({ 
   label, 
@@ -85,6 +86,11 @@ export const AddressInput = ({
   const searchAddresses = async (query: string) => {
     if (!query.trim()) return;
 
+    if (!MAPBOX_API_KEY || MAPBOX_API_KEY === 'pk.your_mapbox_token_here') {
+      console.error('Mapbox API key is missing');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const proximityParam = userLocation 
@@ -92,7 +98,7 @@ export const AddressInput = ({
         : '&proximity=144.9631,-37.8136'; // Default to Melbourne
 
       const response = await fetch(
-        `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${MAPTILER_API_KEY}${proximityParam}&limit=5`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_API_KEY}${proximityParam}&limit=5&country=au`
       );
       
       if (!response.ok) {
@@ -149,9 +155,18 @@ export const AddressInput = ({
   };
 
   const geocodeAddress = async (addressText: string): Promise<JourneyPoint | null> => {
+    if (!MAPBOX_API_KEY || MAPBOX_API_KEY === 'pk.your_mapbox_token_here') {
+      console.error('Mapbox API key is missing');
+      return null;
+    }
+
     try {
+      const proximityParam = userLocation 
+        ? `&proximity=${userLocation.lng},${userLocation.lat}`
+        : '&proximity=144.9631,-37.8136'; // Default to Melbourne
+
       const response = await fetch(
-        `https://api.maptiler.com/geocoding/${encodeURIComponent(addressText)}.json?key=${MAPTILER_API_KEY}&proximity=${userLocation?.lng || 144.9631},${userLocation?.lat || -37.8136}&limit=1`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(addressText)}.json?access_token=${MAPBOX_API_KEY}${proximityParam}&limit=1&country=au`
       );
       const data = await response.json();
       
