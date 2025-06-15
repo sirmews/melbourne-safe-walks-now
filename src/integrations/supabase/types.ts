@@ -173,6 +173,10 @@ export type Database = {
         }
         Returns: Json
       }
+      debug_analyze_route_safety: {
+        Args: { route_coordinates: Json; analysis_buffer_km?: number }
+        Returns: Json
+      }
       find_dangerous_areas_along_route: {
         Args: {
           origin_lat: number
@@ -216,15 +220,17 @@ export type Database = {
           id: string
           location_lat: number
           location_lng: number
-          category: Database["public"]["Enums"]["safety_category"]
-          severity: Database["public"]["Enums"]["safety_severity"]
+          category: string
+          severity: string
           title: string
-          description: string
           created_at: string
-          rating_avg: number
-          rating_count: number
-          verified: boolean
-          flagged: boolean
+        }[]
+      }
+      test_safety_reports_exists: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_reports: number
+          sample_report: Json
         }[]
       }
     }
