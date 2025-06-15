@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useSafeRouting } from './useSafeRouting';
 
 export interface JourneyPoint {
   lat: number;
@@ -13,6 +14,12 @@ export interface Route {
   distance: number; // in meters
   duration: number; // in seconds
   instructions?: string[];
+  safetyAnalysis?: {
+    riskScore: number;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    safetyNotes: string[];
+    dangerousAreas: { lat: number; lng: number; reason: string }[];
+  };
 }
 
 // Get the Mapbox API key from environment variables
@@ -23,6 +30,9 @@ export const useJourneyPlanner = () => {
   const [destination, setDestination] = useState<JourneyPoint | null>(null);
   const [route, setRoute] = useState<Route | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [useSafeRouting, setUseSafeRouting] = useState(true);
+
+  const { analyzeRouteSafety, generateSafeWaypoints, isAnalyzing } = useSafeRouting();
 
   const calculateRoute = async () => {
     if (!origin || !destination) {
@@ -38,12 +48,29 @@ export const useJourneyPlanner = () => {
 
     setIsLoading(true);
     try {
-      // Use Mapbox Directions API for walking directions
+      let waypoints: [number, number][] = [];
+      
+      // Generate safe waypoints if safety routing is enabled
+      if (useSafeRouting) {
+        waypoints = await generateSafeWaypoints(origin, destination);
+      }
+
+      // Build the routing URL with waypoints
+      const coordinates = [
+        [origin.lng, origin.lat],
+        ...waypoints,
+        [destination.lng, destination.lat]
+      ];
+      
+      const coordinatesString = coordinates
+        .map(coord => `${coord[0]},${coord[1]}`)
+        .join(';');
+
       const response = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?access_token=${MAPBOX_API_KEY}&geometries=geojson&steps=true&overview=full`
+        `https://api.mapbox.com/directions/v5/mapbox/walking/${coordinatesString}?access_token=${MAPBOX_API_KEY}&geometries=geojson&steps=true&overview=full`
       );
       
-      console.log('Route request URL:', `https://api.mapbox.com/directions/v5/mapbox/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?access_token=${MAPBOX_API_KEY}&geometries=geojson&steps=true&overview=full`);
+      console.log('Route request URL:', `https://api.mapbox.com/directions/v5/mapbox/walking/${coordinatesString}?access_token=${MAPBOX_API_KEY}&geometries=geojson&steps=true&overview=full`);
       console.log('Response status:', response.status);
       
       if (!response.ok) {
@@ -61,14 +88,30 @@ export const useJourneyPlanner = () => {
         // Extract turn-by-turn instructions if available
         const instructions = routeData.legs?.[0]?.steps?.map((step: any) => step.maneuver?.instruction).filter(Boolean) || [];
         
-        setRoute({
+        // Analyze route safety
+        const safetyAnalysis = await analyzeRouteSafety(routeData.geometry.coordinates);
+        
+        const newRoute: Route = {
           coordinates: routeData.geometry.coordinates,
           distance: routeData.distance,
           duration: routeData.duration,
-          instructions
-        });
+          instructions,
+          safetyAnalysis
+        };
+
+        setRoute(newRoute);
         
-        toast.success('Route calculated successfully');
+        // Show safety-aware success message
+        if (useSafeRouting && waypoints.length > 0) {
+          toast.success(`Safe route calculated with ${waypoints.length} safety waypoint(s)`);
+        } else {
+          toast.success('Route calculated successfully');
+        }
+
+        // Warn about high-risk routes
+        if (safetyAnalysis.riskLevel === 'high' || safetyAnalysis.riskLevel === 'critical') {
+          toast.warning(`Route has ${safetyAnalysis.riskLevel} safety risk. Consider alternative routes.`);
+        }
       } else {
         throw new Error('No route found between the selected locations.');
       }
@@ -116,9 +159,11 @@ export const useJourneyPlanner = () => {
     origin,
     destination,
     route,
-    isLoading,
+    isLoading: isLoading || isAnalyzing,
+    useSafeRouting,
     setOrigin,
     setDestination,
+    setUseSafeRouting,
     calculateRoute,
     clearRoute,
     getAddressFromCoordinates

@@ -2,7 +2,9 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Route, X } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Route, X, Shield } from 'lucide-react';
 import { useJourneyPlanner } from '@/hooks/useJourneyPlanner';
 import { AddressInput } from './AddressInput';
 import { RouteInfo } from './RouteInfo';
@@ -18,8 +20,10 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
     destination,
     route,
     isLoading,
+    useSafeRouting,
     setOrigin,
     setDestination,
+    setUseSafeRouting,
     calculateRoute,
     clearRoute,
     getAddressFromCoordinates
@@ -61,6 +65,24 @@ export const JourneyPlanner = ({ onRouteChange, userLocation }: JourneyPlannerPr
           userLocation={userLocation}
           variant="destination"
         />
+
+        {/* Safety Routing Toggle */}
+        <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md">
+          <Switch
+            id="safe-routing"
+            checked={useSafeRouting}
+            onCheckedChange={setUseSafeRouting}
+          />
+          <Label htmlFor="safe-routing" className="text-sm flex items-center gap-1">
+            <Shield className="h-3 w-3" />
+            Prioritize safe routes
+          </Label>
+        </div>
+        {useSafeRouting && (
+          <div className="text-xs text-gray-600 px-2">
+            Routes will avoid dangerous areas and prefer well-lit, safe paths based on community reports.
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-2">
