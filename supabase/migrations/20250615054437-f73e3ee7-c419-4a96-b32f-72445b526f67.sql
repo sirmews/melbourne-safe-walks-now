@@ -1,4 +1,5 @@
 
+
 -- Drop the existing function first to avoid conflicts
 DROP FUNCTION IF EXISTS get_reports_in_bounds(double precision, double precision, double precision, double precision);
 
@@ -66,7 +67,7 @@ BEGIN
 END;
 $$;
 
--- Enhanced debug version of the route safety analysis
+-- Fixed debug version of the route safety analysis - corrected JSON/JSONB type conversion
 CREATE OR REPLACE FUNCTION debug_analyze_route_safety(
   route_coordinates JSONB,
   analysis_buffer_km FLOAT DEFAULT 0.5
@@ -166,12 +167,13 @@ BEGIN
         AND distance_km < 0.5
       ) as danger_areas,
       
-      array_agg(
+      -- Convert text array to JSONB array properly
+      jsonb_agg(
         'Safe area: ' || title
       ) FILTER (
         WHERE category IN ('well_lit_safe', 'police_presence', 'busy_safe_area')
         AND distance_km < 0.5
-      ) as safety_notes
+      ) as safety_notes_jsonb
       
     FROM nearby_reports
   )
@@ -188,7 +190,7 @@ BEGIN
       'safetyNotes', 
         CASE 
           WHEN ar.nearby_count = 0 THEN jsonb_build_array('No recent safety reports found along this route')
-          WHEN ar.safety_notes IS NOT NULL THEN array_to_json(ar.safety_notes)
+          WHEN ar.safety_notes_jsonb IS NOT NULL THEN ar.safety_notes_jsonb
           ELSE jsonb_build_array(ar.danger_count || ' safety concern(s) reported near this route')
         END,
       'dangerousAreas', COALESCE(ar.danger_areas, jsonb_build_array()),
@@ -206,3 +208,4 @@ BEGIN
   RETURN debug_info;
 END;
 $$;
+
