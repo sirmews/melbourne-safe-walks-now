@@ -1,11 +1,9 @@
+
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { AuthPage } from '@/components/auth/AuthPage';
 import { Header } from '@/components/layout/Header';
 import { MapView } from '@/components/map/MapView';
 import { ReportModal } from '@/components/reports/ReportModal';
 import { ReportDetailsModal } from '@/components/reports/ReportDetailsModal';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MapPin, Shield, Users } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
@@ -15,13 +13,8 @@ import { toast } from 'sonner';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
-// Get the Mapbox API key
-const MAPBOX_API_KEY = import.meta.env.VITE_MAPBOX_API_KEY || 'pk.eyJ1Ijoic2lybWV3cyIsImEiOiJjbWJ4MGFzYXYxNGNxMm1wdWFkcDh3NGFqIn0.pm0S2cGStEHWbhcOCOtJgA';
-
 const Index = () => {
-  const { user, loading, userLocation } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showReportDetails, setShowReportDetails] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedReport, setSelectedReport] = useState<SafetyReport | null>(null);
@@ -44,14 +37,6 @@ const Index = () => {
     getAddressFromCoordinates
   } = useJourneyPlanner();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   const handleMapClick = (lng: number, lat: number) => {
     setSelectedLocation({ lat, lng });
     setShowReportModal(true);
@@ -65,10 +50,6 @@ const Index = () => {
   const handleReportCreated = () => {
     // Trigger map refresh by updating a state or calling a refresh function
     window.location.reload(); // Simple refresh for now
-  };
-
-  const handleAuthClick = () => {
-    setShowAuthModal(true);
   };
 
   const handleRouteChange = (route: any) => {
@@ -109,24 +90,27 @@ const Index = () => {
     }
   };
 
-  if (showAuthModal) {
-    return (
-      <div className="min-h-screen relative">
-        <AuthPage />
-        <Button 
-          variant="outline" 
-          className="absolute top-4 right-4"
-          onClick={() => setShowAuthModal(false)}
-        >
-          Skip Login
-        </Button>
-      </div>
-    );
-  }
+  // Get user location for journey planning (no auth required)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Get user's current location on component mount
+  useState(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        }
+      );
+    }
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onAuthClick={handleAuthClick} />
+      <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -168,13 +152,11 @@ const Index = () => {
                   <MapPin className="h-4 w-4 mt-0.5 text-orange-600 flex-shrink-0" />
                   <span>Click on any existing pin to view detailed safety information</span>
                 </div>
-                {!user && (
-                  <div className="mt-3 p-2 bg-blue-50 rounded-md">
-                    <p className="text-xs text-blue-700">
-                      Sign up to track your reports and help build a safer community
-                    </p>
-                  </div>
-                )}
+                <div className="mt-3 p-2 bg-green-50 rounded-md">
+                  <p className="text-xs text-green-700">
+                    ✨ Completely anonymous - no signup required to contribute to community safety
+                  </p>
+                </div>
               </div>
             </Card>
 
@@ -227,23 +209,23 @@ const Index = () => {
                 </div>
 
                 <div className="pt-2 border-t">
-                  <h4 className="font-medium text-gray-700 mb-2">Severity Levels</h4>
+                  <h4 className="font-medium text-gray-700 mb-2">Severity & Buffer Zones</h4>
                   <div className="space-y-1 ml-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                      <span>Low risk</span>
+                      <span>Low risk (100m buffer)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                      <span>Medium risk</span>
+                      <span>Medium risk (200m buffer)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                      <span>High risk</span>
+                      <span>High risk (300m buffer)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded-full bg-red-600"></div>
-                      <span>Critical risk</span>
+                      <span>Critical risk (500m buffer)</span>
                     </div>
                   </div>
                 </div>

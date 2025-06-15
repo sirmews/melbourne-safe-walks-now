@@ -49,7 +49,7 @@ export const useMapBufferZones = ({ map, reports }: UseMapBufferZonesProps) => {
   };
 
   // Create GeoJSON for buffer zones
-  const createBufferZonesGeoJSON = (reports: SafetyReport[]) => {
+  const createBufferZonesGeoJSON = (reports: SafetyReport[]): GeoJSON.FeatureCollection => {
     const features = reports
       .filter(report => {
         const radius = getBufferRadius(report.category, report.severity);
@@ -74,7 +74,7 @@ export const useMapBufferZones = ({ map, reports }: UseMapBufferZonesProps) => {
         }
 
         return {
-          type: 'Feature',
+          type: 'Feature' as const,
           properties: {
             reportId: report.id,
             severity: report.severity,
@@ -83,14 +83,14 @@ export const useMapBufferZones = ({ map, reports }: UseMapBufferZonesProps) => {
             borderColor: getBorderColor(report.severity)
           },
           geometry: {
-            type: 'Polygon',
+            type: 'Polygon' as const,
             coordinates: [coordinates]
           }
         };
       });
 
     return {
-      type: 'FeatureCollection',
+      type: 'FeatureCollection' as const,
       features
     };
   };
