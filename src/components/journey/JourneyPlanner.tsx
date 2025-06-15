@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Route, X, Shield } from 'lucide-react';
+import { Route, X, Shield, Construction } from 'lucide-react';
 import { JourneyPoint, Route as JourneyRoute } from '@/hooks/useJourneyPlanner';
 import { AddressInput } from './AddressInput';
 import { RouteInfo } from './RouteInfo';
@@ -77,23 +77,25 @@ export const JourneyPlanner = ({
           variant="destination"
         />
 
-        {/* Safety Routing Toggle */}
-        <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md">
+        {/* Safety Routing Toggle - Disabled */}
+        <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md opacity-60">
           <Switch
             id="safe-routing"
-            checked={useSafeRouting}
+            checked={false}
+            disabled={true}
             onCheckedChange={setUseSafeRouting}
           />
-          <Label htmlFor="safe-routing" className="text-sm flex items-center gap-1">
+          <Label htmlFor="safe-routing" className="text-sm flex items-center gap-1 text-gray-500">
             <Shield className="h-3 w-3" />
             Prioritize safe routes
           </Label>
         </div>
-        {useSafeRouting && (
-          <div className="text-xs text-gray-600 px-2">
-            Routes will avoid dangerous areas and prefer well-lit, safe paths based on community reports.
-          </div>
-        )}
+        
+        {/* Construction Notice */}
+        <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 p-2 rounded-md border border-amber-200">
+          <Construction className="h-3 w-3" />
+          <span>This feature is currently under construction.</span>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex gap-2">
