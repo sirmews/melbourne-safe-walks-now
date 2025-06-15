@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
@@ -12,8 +11,33 @@ interface SafetyAnalysis {
   dangerousAreas: { lat: number; lng: number; reason: string }[];
 }
 
+interface BufferZone {
+  lat: number;
+  lng: number;
+  radius: number; // in kilometers
+  severity: string;
+  category: string;
+}
+
 export const useSafeRouting = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const getBufferRadius = (category: string, severity: string): number => {
+    // Safe categories don't create buffer zones
+    const safeCategories = ['well_lit_safe', 'police_presence', 'busy_safe_area', 'cctv_monitored', 'emergency_phone'];
+    if (safeCategories.includes(category)) {
+      return 0;
+    }
+
+    // Buffer radius in kilometers based on severity
+    switch (severity) {
+      case 'low': return 0.1; // 100m
+      case 'medium': return 0.2; // 200m
+      case 'high': return 0.3; // 300m
+      case 'critical': return 0.5; // 500m
+      default: return 0.15; // 150m
+    }
+  };
 
   const analyzeRouteSafety = async (routeCoordinates: [number, number][]): Promise<SafetyAnalysis> => {
     setIsAnalyzing(true);
@@ -74,21 +98,29 @@ export const useSafeRouting = () => {
 
       console.log('Safe routing: Found reports:', reports?.length || 0);
 
-      // Find dangerous areas to avoid
-      const dangerousAreas = (reports || []).filter(report => 
-        ['dangerous_area', 'crime_hotspot', 'unlit_street', 'suspicious_activity'].includes(report.category) &&
-        ['high', 'critical'].includes(report.severity)
-      );
+      // Create buffer zones for dangerous areas
+      const bufferZones: BufferZone[] = (reports || [])
+        .filter(report => {
+          const radius = getBufferRadius(report.category, report.severity);
+          return radius > 0; // Only dangerous areas with buffer zones
+        })
+        .map(report => ({
+          lat: report.location_lat,
+          lng: report.location_lng,
+          radius: getBufferRadius(report.category, report.severity),
+          severity: report.severity,
+          category: report.category
+        }));
 
-      console.log('Safe routing: Found dangerous areas:', dangerousAreas.length);
+      console.log('Safe routing: Created buffer zones:', bufferZones.length);
 
-      // If no dangerous areas, return empty waypoints (use direct route)
-      if (dangerousAreas.length === 0) {
+      // If no buffer zones, return empty waypoints (use direct route)
+      if (bufferZones.length === 0) {
         return [];
       }
 
-      // Calculate detour waypoints to avoid dangerous areas
-      const waypoints = calculateDetourWaypoints(origin, destination, dangerousAreas);
+      // Calculate detour waypoints to avoid buffer zones
+      const waypoints = calculateDetourWaypointsWithBuffers(origin, destination, bufferZones);
       console.log('Safe routing: Generated waypoints:', waypoints.length);
       
       return waypoints;
@@ -224,65 +256,81 @@ function distanceToLineSegment(
   return Math.sqrt(dpx * dpx + dpy * dpy);
 }
 
-function calculateDetourWaypoints(
+function calculateDetourWaypointsWithBuffers(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number },
-  dangerousAreas: SafetyReport[]
+  bufferZones: BufferZone[]
 ): [number, number][] {
   const waypoints: [number, number][] = [];
   
-  // Check if direct path goes through dangerous areas
+  // Check if direct path intersects with any buffer zones
   const directPath: [number, number][] = [
     [origin.lng, origin.lat],
     [destination.lng, destination.lat]
   ];
   
-  const dangerousOnRoute = dangerousAreas.filter(area => {
+  const conflictingZones = bufferZones.filter(zone => {
     const distanceToPath = distanceToLineSegment(
-      [area.location_lng, area.location_lat],
+      [zone.lng, zone.lat],
       directPath[0],
       directPath[1]
     );
-    return distanceToPath < 0.003; // ~300m threshold
+    return distanceToPath < zone.radius;
   });
   
-  if (dangerousOnRoute.length === 0) {
-    return waypoints; // No dangerous areas on direct route
+  if (conflictingZones.length === 0) {
+    return waypoints; // No buffer zones intersect with direct route
   }
   
-  console.log('Safe routing: Found dangerous areas on direct route:', dangerousOnRoute.length);
+  console.log('Safe routing: Found conflicting buffer zones:', conflictingZones.length);
   
-  // Create waypoints to go around dangerous areas
+  // Create waypoints to go around buffer zones
   const midLat = (origin.lat + destination.lat) / 2;
   const midLng = (origin.lng + destination.lng) / 2;
   
-  // Calculate perpendicular offset to avoid dangerous areas
+  // Calculate perpendicular offset to avoid buffer zones
   const latOffset = (destination.lat - origin.lat);
   const lngOffset = (destination.lng - origin.lng);
   
-  // Create two potential detour points (left and right of the direct line)
-  const detourDistance = 0.005; // ~500m detour
+  // Find the maximum buffer radius in conflicting zones
+  const maxBufferRadius = Math.max(...conflictingZones.map(zone => zone.radius));
+  
+  // Create detour distance based on largest buffer zone plus safety margin
+  const detourDistance = maxBufferRadius + 0.002; // Add 200m safety margin
   const perpLat = -lngOffset * detourDistance;
   const perpLng = latOffset * detourDistance;
   
   const leftDetour = [midLng + perpLng, midLat + perpLat] as [number, number];
   const rightDetour = [midLng - perpLng, midLat - perpLat] as [number, number];
   
-  // Choose the detour point that's further from dangerous areas
-  const leftDistance = Math.min(...dangerousOnRoute.map(area => 
-    Math.sqrt(Math.pow(area.location_lng - leftDetour[0], 2) + Math.pow(area.location_lat - leftDetour[1], 2))
+  // Choose the detour point that's further from all buffer zones
+  const leftMinDistance = Math.min(...conflictingZones.map(zone => 
+    calculateDistance(zone.lat, zone.lng, leftDetour[1], leftDetour[0])
   ));
   
-  const rightDistance = Math.min(...dangerousOnRoute.map(area => 
-    Math.sqrt(Math.pow(area.location_lng - rightDetour[0], 2) + Math.pow(area.location_lat - rightDetour[1], 2))
+  const rightMinDistance = Math.min(...conflictingZones.map(zone => 
+    calculateDistance(zone.lat, zone.lng, rightDetour[1], rightDetour[0])
   ));
   
   // Add the safer detour point as a waypoint
-  if (leftDistance > rightDistance) {
+  if (leftMinDistance > rightMinDistance) {
     waypoints.push(leftDetour);
   } else {
     waypoints.push(rightDetour);
   }
   
   return waypoints;
+}
+
+// Helper function to calculate distance between two points in kilometers
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
 }

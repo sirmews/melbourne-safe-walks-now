@@ -6,6 +6,7 @@ import { MapPopup } from './MapPopup';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
 import { useMapLayers } from '@/hooks/useMapLayers';
 import { useMapMarkers } from '@/hooks/useMapMarkers';
+import { useMapBufferZones } from '@/hooks/useMapBufferZones';
 import { useMapRouteVisualization } from '@/hooks/useMapRouteVisualization';
 import { useMapReports } from '@/hooks/useMapReports';
 
@@ -31,12 +32,15 @@ export const MapView = ({
   const { mapContainer, map, userLocation } = useMapInitialization();
   const [popupPosition, setPopupPosition] = useState<{ lng: number; lat: number; x: number; y: number } | null>(null);
   const [mapClickHandlerAttached, setMapClickHandlerAttached] = useState(false);
+  const [currentReports, setCurrentReports] = useState<SafetyReport[]>([]);
   
   const { loadReports } = useMapReports(map);
   const { updateMapMarkers, cleanup } = useMapMarkers({ map, onReportClick });
+  const { cleanup: cleanupBufferZones } = useMapBufferZones({ map, reports: currentReports });
 
   const handleLoadReports = useCallback(async () => {
     const reportsData = await loadReports();
+    setCurrentReports(reportsData);
     updateMapMarkers(reportsData);
   }, [loadReports, updateMapMarkers]);
 
