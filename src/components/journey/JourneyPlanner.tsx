@@ -53,7 +53,7 @@ export const JourneyPlanner = ({
         <AddressInput label="To" placeholder="Enter destination address..." value={destination} onValueChange={setDestination} userLocation={userLocation} variant="destination" />
 
         {/* Safety Routing Toggle - Disabled */}
-        <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md opacity-70">
+        <div className="flex items-center space-x-2 bg-gray-50 rounded-md opacity-70">
           <Switch id="safe-routing" checked={false} disabled={true} onCheckedChange={setUseSafeRouting} />
           <Label htmlFor="safe-routing" className="text-xs flex items-center gap-1 text-gray-500">
             
