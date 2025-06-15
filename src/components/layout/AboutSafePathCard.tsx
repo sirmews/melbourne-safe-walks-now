@@ -14,7 +14,7 @@ export const AboutSafePathCard = () => {
           <MapPin className="h-4 w-4 mt-0.5 text-orange-600 flex-shrink-0" />
           <span>Click on any existing pin to view detailed safety information</span>
         </div>
-        <div className="mt-3 p-2 bg-green-50 rounded-md">
+        <div className="mt-3 p-2 bg-green-50 rounded-md border border-green-300 ">
           <p className="text-xs text-green-700">
             ✨ Completely anonymous - no signup required to contribute to community safety
           </p>
