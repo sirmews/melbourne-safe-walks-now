@@ -32,6 +32,27 @@ export const useJourneyPlanner = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSafeRoutingEnabled, setIsSafeRoutingEnabled] = useState(true);
 
+  // Clear route when origin or destination changes
+  const handleSetOrigin = (point: JourneyPoint | null) => {
+    console.log('Setting new origin:', point);
+    setOrigin(point);
+    // Clear existing route when origin changes
+    if (route) {
+      console.log('Clearing route due to origin change');
+      setRoute(null);
+    }
+  };
+
+  const handleSetDestination = (point: JourneyPoint | null) => {
+    console.log('Setting new destination:', point);
+    setDestination(point);
+    // Clear existing route when destination changes
+    if (route) {
+      console.log('Clearing route due to destination change');
+      setRoute(null);
+    }
+  };
+
   const calculateRoute = async () => {
     if (!origin || !destination) {
       toast.error('Please set both origin and destination');
@@ -39,7 +60,12 @@ export const useJourneyPlanner = () => {
     }
 
     setIsLoading(true);
+    console.log('Starting route calculation...', { origin, destination });
+    
     try {
+      // Clear existing route first
+      setRoute(null);
+      
       console.log('Calculating route using Edge Function...');
       
       // Call the server-side Edge Function for route calculation
@@ -71,6 +97,7 @@ export const useJourneyPlanner = () => {
         safetyAnalysis: data.route.safetyAnalysis
       };
 
+      console.log('Setting new route:', newRoute);
       setRoute(newRoute);
       
       // Show success message based on safety routing
@@ -90,12 +117,14 @@ export const useJourneyPlanner = () => {
     } catch (error) {
       console.error('Error calculating route:', error);
       toast.error(`Failed to calculate route: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setRoute(null);
     } finally {
       setIsLoading(false);
     }
   };
 
   const clearRoute = () => {
+    console.log('Clearing all journey data');
     setRoute(null);
     setOrigin(null);
     setDestination(null);
@@ -133,8 +162,8 @@ export const useJourneyPlanner = () => {
     route,
     isLoading,
     useSafeRouting: isSafeRoutingEnabled,
-    setOrigin,
-    setDestination,
+    setOrigin: handleSetOrigin,
+    setDestination: handleSetDestination,
     setUseSafeRouting: setIsSafeRoutingEnabled,
     calculateRoute,
     clearRoute,
