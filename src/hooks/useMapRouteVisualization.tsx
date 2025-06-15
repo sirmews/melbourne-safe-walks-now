@@ -1,12 +1,13 @@
 
 import { useEffect } from 'react';
 import maplibregl from 'maplibre-gl';
+import { JourneyPoint, Route } from '@/hooks/useJourneyPlanner';
 
 interface UseMapRouteVisualizationProps {
   map: maplibregl.Map | null;
-  route?: any;
-  origin?: { lat: number; lng: number };
-  destination?: { lat: number; lng: number };
+  route?: Route | null;
+  origin?: JourneyPoint | null;
+  destination?: JourneyPoint | null;
 }
 
 export const useMapRouteVisualization = ({ 

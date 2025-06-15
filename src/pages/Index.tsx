@@ -18,9 +18,6 @@ const Index = () => {
   const [showReportDetails, setShowReportDetails] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedReport, setSelectedReport] = useState<SafetyReport | null>(null);
-  const [routeData, setRouteData] = useState<any>(null);
-  const [journeyOrigin, setJourneyOrigin] = useState<{ lat: number; lng: number } | null>(null);
-  const [journeyDestination, setJourneyDestination] = useState<{ lat: number; lng: number } | null>(null);
 
   // Use the journey planner hook here in the main component
   const {
@@ -50,27 +47,6 @@ const Index = () => {
   const handleReportCreated = () => {
     // Trigger map refresh by updating a state or calling a refresh function
     window.location.reload(); // Simple refresh for now
-  };
-
-  const handleRouteChange = (route: any) => {
-    setRouteData(route);
-    if (route) {
-      // Extract origin and destination from route if available
-      if (route.coordinates && route.coordinates.length > 0) {
-        const coords = route.coordinates;
-        setJourneyOrigin({ 
-          lng: coords[0][0], 
-          lat: coords[0][1] 
-        });
-        setJourneyDestination({ 
-          lng: coords[coords.length - 1][0], 
-          lat: coords[coords.length - 1][1] 
-        });
-      }
-    } else {
-      setJourneyOrigin(null);
-      setJourneyDestination(null);
-    }
   };
 
   const handlePlanTripToLocation = async (lng: number, lat: number) => {
@@ -117,7 +93,6 @@ const Index = () => {
           {/* Journey Planner Sidebar */}
           <div className="lg:col-span-1">
             <JourneyPlanner 
-              onRouteChange={handleRouteChange}
               userLocation={userLocation}
               origin={origin}
               destination={destination}
@@ -140,9 +115,9 @@ const Index = () => {
                 onMapClick={handleMapClick} 
                 onReportClick={handleReportClick}
                 onPlanTripToLocation={handlePlanTripToLocation}
-                route={routeData}
-                origin={journeyOrigin}
-                destination={journeyDestination}
+                route={route}
+                origin={origin}
+                destination={destination}
               />
             </Card>
           </div>

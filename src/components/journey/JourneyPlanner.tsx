@@ -10,7 +10,6 @@ import { AddressInput } from './AddressInput';
 import { RouteInfo } from './RouteInfo';
 
 interface JourneyPlannerProps {
-  onRouteChange?: (route: any) => void;
   userLocation?: { lat: number; lng: number } | null;
   // Journey state props
   origin: JourneyPoint | null;
@@ -27,7 +26,6 @@ interface JourneyPlannerProps {
 }
 
 export const JourneyPlanner = ({ 
-  onRouteChange, 
   userLocation,
   origin,
   destination,
@@ -41,11 +39,6 @@ export const JourneyPlanner = ({
   clearRoute,
   getAddressFromCoordinates
 }: JourneyPlannerProps) => {
-  // Update route in parent component when route changes
-  useEffect(() => {
-    onRouteChange?.(route);
-  }, [route, onRouteChange]);
-
   const handleClearRoute = () => {
     clearRoute();
   };
