@@ -5,11 +5,24 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, Tag, Shield, Flag, CheckCircle, AlertTriangle } from 'lucide-react';
-import { Database } from '@/integrations/supabase/types';
 import { safetyReportsApi } from '@/services/safetyReportsApi';
 import { toast } from 'sonner';
 
-type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
+// Updated type to match the new database function return signature
+type SafetyReport = {
+  id: string;
+  location_lat: number;
+  location_lng: number;
+  category: string;
+  severity: string;
+  title: string;
+  description: string;
+  created_at: string;
+  rating_avg: number;
+  rating_count: number;
+  verified: boolean;
+  flagged: boolean;
+};
 
 interface ReportDetailsModalProps {
   open: boolean;

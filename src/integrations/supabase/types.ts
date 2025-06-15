@@ -223,7 +223,12 @@ export type Database = {
           category: string
           severity: string
           title: string
+          description: string
           created_at: string
+          rating_avg: number
+          rating_count: number
+          verified: boolean
+          flagged: boolean
         }[]
       }
       test_safety_reports_exists: {

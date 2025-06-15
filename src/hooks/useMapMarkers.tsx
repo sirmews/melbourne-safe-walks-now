@@ -1,9 +1,22 @@
 
 import { useRef } from 'react';
 import maplibregl from 'maplibre-gl';
-import { Database } from '@/integrations/supabase/types';
 
-type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
+// Updated type to match the new database function return signature
+type SafetyReport = {
+  id: string;
+  location_lat: number;
+  location_lng: number;
+  category: string;
+  severity: string;
+  title: string;
+  description: string;
+  created_at: string;
+  rating_avg: number;
+  rating_count: number;
+  verified: boolean;
+  flagged: boolean;
+};
 
 interface UseMapMarkersProps {
   map: maplibregl.Map | null;

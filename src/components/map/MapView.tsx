@@ -1,7 +1,6 @@
 
 import { useState, useCallback } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Database } from '@/integrations/supabase/types';
 import { MapPopup } from './MapPopup';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
 import { useMapLayers } from '@/hooks/useMapLayers';
@@ -10,7 +9,21 @@ import { useMapBufferZones } from '@/hooks/useMapBufferZones';
 import { useMapRouteVisualization } from '@/hooks/useMapRouteVisualization';
 import { useMapReports } from '@/hooks/useMapReports';
 
-type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
+// Updated type to match the new database function return signature
+type SafetyReport = {
+  id: string;
+  location_lat: number;
+  location_lng: number;
+  category: string;
+  severity: string;
+  title: string;
+  description: string;
+  created_at: string;
+  rating_avg: number;
+  rating_count: number;
+  verified: boolean;
+  flagged: boolean;
+};
 
 interface MapViewProps {
   onReportClick?: (report: SafetyReport) => void;

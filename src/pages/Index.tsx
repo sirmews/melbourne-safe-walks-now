@@ -5,11 +5,24 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { InfoCardsSection } from '@/components/layout/InfoCardsSection';
 import { ReportModal } from '@/components/reports/ReportModal';
 import { ReportDetailsModal } from '@/components/reports/ReportDetailsModal';
-import { Database } from '@/integrations/supabase/types';
 import { useJourneyPlanner } from '@/hooks/useJourneyPlanner';
 import { toast } from 'sonner';
 
-type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
+// Updated type to match the new database function return signature
+type SafetyReport = {
+  id: string;
+  location_lat: number;
+  location_lng: number;
+  category: string;
+  severity: string;
+  title: string;
+  description: string;
+  created_at: string;
+  rating_avg: number;
+  rating_count: number;
+  verified: boolean;
+  flagged: boolean;
+};
 
 const Index = () => {
   const [showReportModal, setShowReportModal] = useState(false);
