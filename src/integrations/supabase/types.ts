@@ -163,6 +163,53 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      analyze_route_safety_detailed: {
+        Args: {
+          route_coordinates: Json
+          analysis_buffer_km?: number
+          current_hour?: number
+          current_day?: number
+          max_report_age_hours?: number
+        }
+        Returns: Json
+      }
+      find_dangerous_areas_along_route: {
+        Args: {
+          origin_lat: number
+          origin_lng: number
+          dest_lat: number
+          dest_lng: number
+          corridor_width_km?: number
+          current_hour?: number
+          max_report_age_hours?: number
+        }
+        Returns: {
+          id: string
+          location_lat: number
+          location_lng: number
+          category: Database["public"]["Enums"]["safety_category"]
+          severity: Database["public"]["Enums"]["safety_severity"]
+          weighted_risk_score: number
+          distance_to_route_km: number
+          buffer_radius_km: number
+        }[]
+      }
+      generate_avoidance_waypoints: {
+        Args: {
+          origin_lat: number
+          origin_lng: number
+          dest_lat: number
+          dest_lng: number
+          dangerous_areas: Json
+          max_detour_ratio?: number
+          min_clearance_km?: number
+        }
+        Returns: {
+          waypoint_lng: number
+          waypoint_lat: number
+          waypoint_order: number
+        }[]
+      }
       get_reports_in_bounds: {
         Args: { sw_lat: number; sw_lng: number; ne_lat: number; ne_lng: number }
         Returns: {
