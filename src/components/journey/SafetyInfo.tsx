@@ -34,6 +34,16 @@ export const SafetyInfo = ({ safetyAnalysis }: SafetyInfoProps) => {
     }
   };
 
+  const getSafetyLevelText = (level: string) => {
+    switch (level) {
+      case 'low': return 'Very Safe';
+      case 'medium': return 'Moderately Safe';
+      case 'high': return 'Use Caution';
+      case 'critical': return 'High Risk';
+      default: return 'Unknown';
+    }
+  };
+
   return (
     <div className="space-y-3">
       {/* Risk Level Indicator */}
@@ -42,7 +52,7 @@ export const SafetyInfo = ({ safetyAnalysis }: SafetyInfoProps) => {
           {getRiskIcon(riskLevel)}
           <div className="flex-1">
             <div className="font-semibold text-sm">
-              Safety Level: {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
+              Safety Level: {getSafetyLevelText(riskLevel)}
             </div>
             <div className="text-xs opacity-75">
               Risk Score: {Math.round(riskScore)}/100
