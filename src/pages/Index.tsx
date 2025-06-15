@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from '@/components/auth/AuthPage';
@@ -7,7 +8,7 @@ import { ReportModal } from '@/components/reports/ReportModal';
 import { ReportDetailsModal } from '@/components/reports/ReportDetailsModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, MapPin, Shield, Users, LogIn } from 'lucide-react';
+import { MapPin, Shield, Users } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { JourneyPlanner } from '@/components/journey/JourneyPlanner';
 import { useJourneyPlanner } from '@/hooks/useJourneyPlanner';
@@ -108,28 +109,6 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Quick Actions Card */}
-            <Card className="p-4">
-              <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-              <Button 
-                onClick={() => setShowReportModal(true)}
-                className="w-full mb-2"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Report Safety Issue
-              </Button>
-              {!user && (
-                <Button 
-                  variant="outline"
-                  onClick={handleAuthClick}
-                  className="w-full"
-                >
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In / Sign Up
-                </Button>
-              )}
-            </Card>
-
             {/* Journey Planner */}
             <JourneyPlanner 
               onRouteChange={handleRouteChange}
