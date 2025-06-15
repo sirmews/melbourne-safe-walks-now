@@ -17,25 +17,48 @@ export const useMapRouteVisualization = ({
 }: UseMapRouteVisualizationProps) => {
   // Update route visualization when route changes
   useEffect(() => {
-    if (!map) return;
+    if (!map || !route) return;
 
-    const mapSource = map.getSource('route');
-    if (mapSource && route) {
-      (mapSource as any).setData({
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates: route.coordinates
+    const updateRoute = () => {
+      try {
+        const mapSource = map.getSource('route');
+        if (mapSource && route.coordinates) {
+          (mapSource as any).setData({
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: route.coordinates
+            }
+          });
+
+          // Fit map to route bounds
+          const bounds = new maplibregl.LngLatBounds();
+          route.coordinates.forEach((coord: [number, number]) => {
+            bounds.extend(coord);
+          });
+          map.fitBounds(bounds, { padding: 50 });
         }
-      });
+      } catch (error) {
+        console.error('Error updating route:', error);
+      }
+    };
 
-      // Fit map to route bounds
-      const bounds = new maplibregl.LngLatBounds();
-      route.coordinates.forEach((coord: [number, number]) => {
-        bounds.extend(coord);
-      });
-      map.fitBounds(bounds, { padding: 50 });
+    // Wait for map to be loaded and sources to be available
+    if (map.isStyleLoaded() && map.getSource('route')) {
+      updateRoute();
+    } else {
+      const onStyleLoad = () => {
+        if (map.getSource('route')) {
+          updateRoute();
+          map.off('styledata', onStyleLoad);
+        }
+      };
+      map.on('styledata', onStyleLoad);
+      
+      return () => {
+        map.off('styledata', onStyleLoad);
+      };
     }
   }, [map, route]);
 
@@ -43,36 +66,59 @@ export const useMapRouteVisualization = ({
   useEffect(() => {
     if (!map) return;
 
-    const journeyPointsSource = map.getSource('journey-points');
-    if (journeyPointsSource) {
-      const features = [];
-      
-      if (origin) {
-        features.push({
-          type: 'Feature',
-          properties: { color: '#10b981' }, // green for origin
-          geometry: {
-            type: 'Point',
-            coordinates: [origin.lng, origin.lat]
+    const updateJourneyPoints = () => {
+      try {
+        const journeyPointsSource = map.getSource('journey-points');
+        if (journeyPointsSource) {
+          const features = [];
+          
+          if (origin) {
+            features.push({
+              type: 'Feature',
+              properties: { color: '#10b981' }, // green for origin
+              geometry: {
+                type: 'Point',
+                coordinates: [origin.lng, origin.lat]
+              }
+            });
           }
-        });
-      }
-      
-      if (destination) {
-        features.push({
-          type: 'Feature',
-          properties: { color: '#ef4444' }, // red for destination
-          geometry: {
-            type: 'Point',
-            coordinates: [destination.lng, destination.lat]
+          
+          if (destination) {
+            features.push({
+              type: 'Feature',
+              properties: { color: '#ef4444' }, // red for destination
+              geometry: {
+                type: 'Point',
+                coordinates: [destination.lng, destination.lat]
+              }
+            });
           }
-        });
-      }
 
-      (journeyPointsSource as any).setData({
-        type: 'FeatureCollection',
-        features
-      });
+          (journeyPointsSource as any).setData({
+            type: 'FeatureCollection',
+            features
+          });
+        }
+      } catch (error) {
+        console.error('Error updating journey points:', error);
+      }
+    };
+
+    // Wait for map to be loaded and sources to be available
+    if (map.isStyleLoaded() && map.getSource('journey-points')) {
+      updateJourneyPoints();
+    } else {
+      const onStyleLoad = () => {
+        if (map.getSource('journey-points')) {
+          updateJourneyPoints();
+          map.off('styledata', onStyleLoad);
+        }
+      };
+      map.on('styledata', onStyleLoad);
+      
+      return () => {
+        map.off('styledata', onStyleLoad);
+      };
     }
   }, [map, origin, destination]);
 };

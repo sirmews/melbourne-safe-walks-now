@@ -1,5 +1,5 @@
 
-import { MapPin, Clock, ArrowRight } from 'lucide-react';
+import { MapPin, Clock, ArrowRight, Shield } from 'lucide-react';
 import { Route } from '@/hooks/useJourneyPlanner';
 import { JourneyPoint } from '@/hooks/useJourneyPlanner';
 import { SafetyInfo } from './SafetyInfo';
@@ -27,6 +27,8 @@ export const RouteInfo = ({ route, origin, destination }: RouteInfoProps) => {
     const remainingMinutes = minutes % 60;
     return `${hours}h ${remainingMinutes}m`;
   };
+
+  console.log('RouteInfo - Safety analysis:', route.safetyAnalysis);
 
   return (
     <div className="space-y-4">
@@ -60,8 +62,21 @@ export const RouteInfo = ({ route, origin, destination }: RouteInfoProps) => {
       </div>
 
       {/* Safety Analysis */}
-      {route.safetyAnalysis && (
-        <SafetyInfo safetyAnalysis={route.safetyAnalysis} />
+      {route.safetyAnalysis ? (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="h-4 w-4 text-blue-600" />
+            <span className="font-medium text-sm">Safety Analysis</span>
+          </div>
+          <SafetyInfo safetyAnalysis={route.safetyAnalysis} />
+        </div>
+      ) : (
+        <div className="p-3 bg-gray-50 rounded-md border border-gray-200">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Shield className="h-4 w-4" />
+            <span>Safety analysis in progress...</span>
+          </div>
+        </div>
       )}
     </div>
   );
