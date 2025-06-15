@@ -135,7 +135,7 @@ const Index = () => {
 
           {/* Map */}
           <div className="lg:col-span-3">
-            <Card className="h-[600px] overflow-hidden">
+            <Card className="h-[800px] overflow-hidden">
               <MapView 
                 onMapClick={handleMapClick} 
                 onReportClick={handleReportClick}
