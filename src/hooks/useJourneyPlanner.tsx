@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useSafeRouting } from './useSafeRouting';
@@ -32,7 +31,8 @@ export const useJourneyPlanner = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [useSafeRouting, setUseSafeRouting] = useState(true);
 
-  const { analyzeRouteSafety, generateSafeWaypoints, isAnalyzing } = useSafeRouting();
+  const safeRoutingHook = useSafeRouting();
+  const { analyzeRouteSafety, generateSafeWaypoints, isAnalyzing } = safeRoutingHook;
 
   const calculateRoute = async () => {
     if (!origin || !destination) {
