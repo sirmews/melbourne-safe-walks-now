@@ -13,13 +13,76 @@ interface UseMapMarkersProps {
 export const useMapMarkers = ({ map, onReportClick }: UseMapMarkersProps) => {
   const markersRef = useRef<{ [key: string]: maplibregl.Marker }>({});
 
-  const getSeverityColor = (severity: string) => {
+  const getCategoryIcon = (category: string): string => {
+    switch (category) {
+      case 'well_lit_safe': return '💡';
+      case 'police_presence': return '👮';
+      case 'busy_safe_area': return '🏢';
+      case 'cctv_monitored': return '📹';
+      case 'emergency_phone': return '📞';
+      case 'unlit_street': return '🌑';
+      case 'crime_hotspot': return '⚠️';
+      case 'dangerous_area': return '🚨';
+      case 'suspicious_activity': return '👀';
+      case 'poor_visibility': return '🌫️';
+      case 'isolated_area': return '🏚️';
+      case 'vandalism': return '🎨';
+      case 'harassment': return '😰';
+      case 'theft': return '💰';
+      case 'assault': return '🚑';
+      case 'drug_activity': return '💊';
+      case 'general_concern': return '❓';
+      default: return '📍';
+    }
+  };
+
+  const getSeverityColor = (category: string, severity: string): string => {
+    // Safe/positive categories always use green tones regardless of severity
+    const safeCategories = ['well_lit_safe', 'police_presence', 'busy_safe_area', 'cctv_monitored', 'emergency_phone'];
+    
+    if (safeCategories.includes(category)) {
+      switch (severity) {
+        case 'low': return '#86efac'; // light green
+        case 'medium': return '#22c55e'; // green
+        case 'high': return '#16a34a'; // dark green
+        case 'critical': return '#15803d'; // darker green
+        default: return '#22c55e';
+      }
+    }
+    
+    // Unsafe/negative categories use warning colors based on severity
     switch (severity) {
-      case 'low': return '#22c55e'; // green
-      case 'medium': return '#f59e0b'; // amber
+      case 'low': return '#fbbf24'; // amber
+      case 'medium': return '#f59e0b'; // orange
       case 'high': return '#ef4444'; // red
-      case 'critical': return '#7c3aed'; // purple
+      case 'critical': return '#dc2626'; // dark red
       default: return '#6b7280'; // gray
+    }
+  };
+
+  const getBorderColor = (category: string, severity: string): string => {
+    const safeCategories = ['well_lit_safe', 'police_presence', 'busy_safe_area', 'cctv_monitored', 'emergency_phone'];
+    
+    if (safeCategories.includes(category)) {
+      return '#059669'; // green border for safe areas
+    }
+    
+    switch (severity) {
+      case 'low': return '#d97706';
+      case 'medium': return '#ea580c';
+      case 'high': return '#dc2626';
+      case 'critical': return '#991b1b';
+      default: return '#6b7280';
+    }
+  };
+
+  const getMarkerSize = (severity: string): { width: number; height: number } => {
+    switch (severity) {
+      case 'low': return { width: 16, height: 16 };
+      case 'medium': return { width: 20, height: 20 };
+      case 'high': return { width: 24, height: 24 };
+      case 'critical': return { width: 28, height: 28 };
+      default: return { width: 20, height: 20 };
     }
   };
 
@@ -46,19 +109,34 @@ export const useMapMarkers = ({ map, onReportClick }: UseMapMarkersProps) => {
         return;
       }
 
+      const markerSize = getMarkerSize(report.severity);
+      const backgroundColor = getSeverityColor(report.category, report.severity);
+      const borderColor = getBorderColor(report.category, report.severity);
+      const icon = getCategoryIcon(report.category);
+
       const markerElement = document.createElement('div');
       markerElement.className = 'safety-marker';
       markerElement.setAttribute('data-report-id', reportId);
-      markerElement.style.cssText = `
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: 2px solid white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        background-color: ${getSeverityColor(report.severity)};
-        z-index: 10;
-        position: relative;
+      
+      // Create a container for the icon and background
+      markerElement.innerHTML = `
+        <div style="
+          width: ${markerSize.width}px;
+          height: ${markerSize.height}px;
+          border-radius: 50%;
+          background-color: ${backgroundColor};
+          border: 2px solid ${borderColor};
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: ${markerSize.width * 0.6}px;
+          cursor: pointer;
+          position: relative;
+          z-index: 10;
+        ">
+          ${icon}
+        </div>
       `;
 
       // Add click handler to marker element
