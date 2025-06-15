@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useSafeRouting } from './useSafeRouting';
@@ -29,7 +30,7 @@ export const useJourneyPlanner = () => {
   const [destination, setDestination] = useState<JourneyPoint | null>(null);
   const [route, setRoute] = useState<Route | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [useSafeRouting, setUseSafeRouting] = useState(true);
+  const [isSafeRoutingEnabled, setIsSafeRoutingEnabled] = useState(true);
 
   const safeRoutingHook = useSafeRouting();
   const { analyzeRouteSafety, generateSafeWaypoints, isAnalyzing } = safeRoutingHook;
@@ -51,7 +52,7 @@ export const useJourneyPlanner = () => {
       let waypoints: [number, number][] = [];
       
       // Generate safe waypoints if safety routing is enabled
-      if (useSafeRouting) {
+      if (isSafeRoutingEnabled) {
         waypoints = await generateSafeWaypoints(origin, destination);
       }
 
@@ -102,7 +103,7 @@ export const useJourneyPlanner = () => {
         setRoute(newRoute);
         
         // Show safety-aware success message
-        if (useSafeRouting && waypoints.length > 0) {
+        if (isSafeRoutingEnabled && waypoints.length > 0) {
           toast.success(`Safe route calculated with ${waypoints.length} safety waypoint(s)`);
         } else {
           toast.success('Route calculated successfully');
@@ -160,10 +161,10 @@ export const useJourneyPlanner = () => {
     destination,
     route,
     isLoading: isLoading || isAnalyzing,
-    useSafeRouting,
+    useSafeRouting: isSafeRoutingEnabled,
     setOrigin,
     setDestination,
-    setUseSafeRouting,
+    setUseSafeRouting: setIsSafeRoutingEnabled,
     calculateRoute,
     clearRoute,
     getAddressFromCoordinates
