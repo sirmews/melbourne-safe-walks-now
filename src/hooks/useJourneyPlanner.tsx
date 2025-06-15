@@ -38,18 +38,49 @@ export const useJourneyPlanner = () => {
 
     setIsLoading(true);
     try {
-      // Use the correct MapTiler Directions API format
+      // Use the correct MapTiler Directions API format - try the routing API instead
       const response = await fetch(
-        `https://api.maptiler.com/directions/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?key=${MAPTILER_API_KEY}&geometries=geojson&steps=true`
+        `https://api.maptiler.com/routing/route/walking?key=${MAPTILER_API_KEY}&start=${origin.lng},${origin.lat}&end=${destination.lng},${destination.lat}&geometries=geojson&steps=true`
       );
       
-      console.log('Route request URL:', `https://api.maptiler.com/directions/walking/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?key=${MAPTILER_API_KEY}&geometries=geojson&steps=true`);
+      console.log('Route request URL:', `https://api.maptiler.com/routing/route/walking?key=${MAPTILER_API_KEY}&start=${origin.lng},${origin.lat}&end=${destination.lng},${destination.lat}&geometries=geojson&steps=true`);
       console.log('Response status:', response.status);
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Route API error:', errorText);
-        throw new Error(`Route calculation failed: ${response.status} ${response.statusText}`);
+        // If routing API fails, try the directions API with different format
+        console.log('Trying alternative directions API...');
+        const altResponse = await fetch(
+          `https://api.maptiler.com/directions/foot/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?key=${MAPTILER_API_KEY}&geometries=geojson&steps=true`
+        );
+        
+        console.log('Alternative route request URL:', `https://api.maptiler.com/directions/foot/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?key=${MAPTILER_API_KEY}&geometries=geojson&steps=true`);
+        console.log('Alternative response status:', altResponse.status);
+        
+        if (!altResponse.ok) {
+          const errorText = await altResponse.text();
+          console.error('Route API error:', errorText);
+          throw new Error(`Route calculation failed: ${altResponse.status} ${altResponse.statusText}`);
+        }
+        
+        const altData = await altResponse.json();
+        console.log('Alternative route response data:', altData);
+        
+        if (altData.routes && altData.routes.length > 0) {
+          const routeData = altData.routes[0];
+          
+          // Extract turn-by-turn instructions if available
+          const instructions = routeData.legs?.[0]?.steps?.map((step: any) => step.instruction).filter(Boolean) || [];
+          
+          setRoute({
+            coordinates: routeData.geometry.coordinates,
+            distance: routeData.distance,
+            duration: routeData.duration,
+            instructions
+          });
+          
+          toast.success('Route calculated successfully');
+          return;
+        }
       }
 
       const data = await response.json();
