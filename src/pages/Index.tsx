@@ -16,6 +16,9 @@ import { toast } from 'sonner';
 
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
+// Get the Mapbox API key
+const MAPBOX_API_KEY = import.meta.env.VITE_MAPBOX_API_KEY || 'pk.eyJ1Ijoic2lybWV3cyIsImEiOiJjbWJ4MGFzYXYxNGNxMm1wdWFkcDh3NGFqIn0.pm0S2cGStEHWbhcOCOtJgA';
+
 const Index = () => {
   const { user, loading, userLocation } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
@@ -77,13 +80,47 @@ const Index = () => {
     }
   };
 
-  const handlePlanTripToLocation = (lng: number, lat: number) => {
-    setDestination({
-      lat,
-      lng,
-      address: `Location: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-    });
-    toast.success('Destination set! Plan your journey in the sidebar.');
+  const getAddressFromCoordinates = async (lat: number, lng: number): Promise<string> => {
+    if (!MAPBOX_API_KEY || MAPBOX_API_KEY === 'pk.your_mapbox_token_here') {
+      console.error('Mapbox API key is missing');
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
+    
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_API_KEY}&limit=1&country=au`
+      );
+      
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        const feature = data.features[0];
+        return feature.place_name || feature.text || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+      
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    } catch (error) {
+      console.error('Error getting address:', error);
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
+  };
+
+  const handlePlanTripToLocation = async (lng: number, lat: number) => {
+    try {
+      toast.loading('Finding address...');
+      const address = await getAddressFromCoordinates(lat, lng);
+      
+      setDestination({
+        lat,
+        lng,
+        address
+      });
+      
+      toast.success('Destination set! Plan your journey in the sidebar.');
+    } catch (error) {
+      console.error('Error setting destination:', error);
+      toast.error('Failed to set destination. Please try again.');
+    }
   };
 
   if (showAuthModal) {

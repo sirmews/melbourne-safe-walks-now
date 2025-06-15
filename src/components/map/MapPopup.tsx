@@ -7,10 +7,14 @@ interface MapPopupProps {
   position: { lng: number; lat: number };
   onClose: () => void;
   onSafetyReport: () => void;
-  onPlanTrip: () => void;
+  onPlanTrip: (lng: number, lat: number) => void;
 }
 
 export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapPopupProps) => {
+  const handlePlanTrip = () => {
+    onPlanTrip(position.lng, position.lat);
+  };
+
   return (
     <Card className="absolute z-40 p-3 bg-white shadow-lg rounded-lg min-w-[200px] transform -translate-x-1/2 -translate-y-full">
       <div className="flex items-center justify-between mb-2">
@@ -39,7 +43,7 @@ export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapP
         <Button
           variant="outline"
           size="sm"
-          onClick={onPlanTrip}
+          onClick={handlePlanTrip}
           className="flex-1 flex flex-col items-center p-3 h-auto"
         >
           <Navigation className="h-5 w-5 mb-1 text-green-600" />
