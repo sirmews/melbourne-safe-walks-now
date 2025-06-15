@@ -4,8 +4,9 @@ import { Card } from '@/components/ui/card';
 import { MapView } from '@/components/map/MapView';
 import { JourneyPlanner } from '@/components/journey/JourneyPlanner';
 import { AboutSafePathCard } from './AboutSafePathCard';
+import { InfoCardsSection } from './InfoCardsSection';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Shield, Route } from 'lucide-react';
+import { Shield, Route, Map } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { JourneyPoint, Route as JourneyRoute } from '@/hooks/useJourneyPlanner';
 
@@ -54,7 +55,7 @@ export const MainLayout = ({
         {/* Sidebar with Accordion */}
         <div className="lg:col-span-1">
           <Card>
-            <Accordion type="multiple" defaultValue={["about", "journey"]} className="p-4">
+            <Accordion type="multiple" defaultValue={["about", "journey", "legend"]} className="p-4">
               <AccordionItem value="about" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
                   <div className="flex items-center gap-2">
@@ -89,6 +90,18 @@ export const MainLayout = ({
                     clearRoute={clearRoute}
                     getAddressFromCoordinates={getAddressFromCoordinates}
                   />
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="legend" className="border-b-0">
+                <AccordionTrigger className="text-base font-semibold hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <Map className="h-5 w-5 text-blue-600" />
+                    Legend
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <InfoCardsSection />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
