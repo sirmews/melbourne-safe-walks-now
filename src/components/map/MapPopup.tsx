@@ -12,7 +12,7 @@ interface MapPopupProps {
 
 export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapPopupProps) => {
   return (
-    <Card className="absolute z-50 p-3 bg-white shadow-lg rounded-lg min-w-[200px] transform -translate-x-1/2 -translate-y-full">
+    <Card className="absolute z-40 p-3 bg-white shadow-lg rounded-lg min-w-[200px] transform -translate-x-1/2 -translate-y-full">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-gray-700">Map Options</span>
         <Button 

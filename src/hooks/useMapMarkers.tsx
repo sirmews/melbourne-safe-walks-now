@@ -57,7 +57,7 @@ export const useMapMarkers = ({ map, onReportClick }: UseMapMarkersProps) => {
         border: 2px solid white;
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         background-color: ${getSeverityColor(report.severity)};
-        z-index: 1000;
+        z-index: 10;
         position: relative;
       `;
 
