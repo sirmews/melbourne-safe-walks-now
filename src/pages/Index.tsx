@@ -116,7 +116,7 @@ const Index = () => {
         onReportClick={handleReportClick}
         onPlanTripToLocation={handlePlanTripToLocation}
       >
-        <InfoCardsSection />
+       
       </MainLayout>
 
       {selectedLocation && (
