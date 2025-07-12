@@ -14,7 +14,11 @@ import {
   Eye,
   MessageCircle,
   TrendingUp,
-  Clock
+  Clock,
+  Github,
+  Code,
+  GitBranch,
+  Coffee
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -23,8 +27,8 @@ const Landing = () => {
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle email signup
-    console.log('Email signup:', email);
+    // Handle email signup for project updates
+    console.log('Project updates signup:', email);
     setEmail('');
   };
 
@@ -37,13 +41,18 @@ const Landing = () => {
             <div className="flex items-center gap-2">
               <Shield className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold text-gray-900">SafePath</span>
+              <Badge variant="outline" className="ml-2 text-xs">Open Source</Badge>
             </div>
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">How It Works</a>
+              <a href="#about" className="text-gray-600 hover:text-gray-900 transition-colors">About</a>
+              <a href="#contribute" className="text-gray-600 hover:text-gray-900 transition-colors">Contribute</a>
               <a href="#community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</a>
+              <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1">
+                <Github className="h-4 w-4" />
+                GitHub
+              </a>
               <Link to="/app">
-                <Button variant="outline" size="sm">Open App</Button>
+                <Button variant="outline" size="sm">Try the Demo</Button>
               </Link>
             </nav>
           </div>
@@ -56,39 +65,44 @@ const Landing = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                  Community-Powered Safety
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  🌟 Open Source Community Project
                 </Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
                   Safer paths, shared by the people who 
                   <span className="text-blue-600"> walk them</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Discover secure walking routes through real community insights. Share your local knowledge and help others navigate safely through Melbourne's neighborhoods.
+                  An open source platform for discovering and sharing secure walking routes through community collaboration. Built by developers and safety advocates, for everyone who walks.
                 </p>
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/app">
                   <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
-                    Start Exploring Routes
+                    Try the Platform
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Watch How It Works
+                  <Github className="mr-2 h-5 w-5" />
+                  View on GitHub
                 </Button>
               </div>
 
-              {/* Trust Indicators */}
+              {/* Project Stats */}
               <div className="flex items-center gap-6 pt-4">
                 <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-green-600" />
-                  <span className="text-sm text-gray-600">2,500+ Active Contributors</span>
+                  <Code className="h-5 w-5 text-green-600" />
+                  <span className="text-sm text-gray-600">Open Source</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm text-gray-600">15,000+ Safe Routes</span>
+                  <Users className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm text-gray-600">Community Driven</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Heart className="h-5 w-5 text-red-500" />
+                  <span className="text-sm text-gray-600">Built with Care</span>
                 </div>
               </div>
             </div>
@@ -99,8 +113,8 @@ const Landing = () => {
                 <div className="bg-gradient-to-br from-blue-500 to-green-500 rounded-lg h-64 flex items-center justify-center">
                   <div className="text-white text-center space-y-4">
                     <MapPin className="h-16 w-16 mx-auto" />
-                    <p className="text-lg font-semibold">Interactive Safety Map</p>
-                    <p className="text-sm opacity-90">Real-time community insights</p>
+                    <p className="text-lg font-semibold">Community Safety Map</p>
+                    <p className="text-sm opacity-90">Open source & collaborative</p>
                   </div>
                 </div>
               </div>
@@ -108,15 +122,15 @@ const Landing = () => {
               {/* Floating Cards */}
               <div className="absolute -top-4 -left-4 bg-white rounded-lg shadow-lg p-3 transform -rotate-6">
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-green-600" />
-                  <span className="text-xs font-medium">Well-lit path</span>
+                  <Github className="h-4 w-4 text-gray-700" />
+                  <span className="text-xs font-medium">Open Source</span>
                 </div>
               </div>
               
               <div className="absolute -bottom-4 -right-4 bg-white rounded-lg shadow-lg p-3 transform rotate-6">
                 <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  <span className="text-xs font-medium">5-star safety rating</span>
+                  <Users className="h-4 w-4 text-blue-600" />
+                  <span className="text-xs font-medium">Community Built</span>
                 </div>
               </div>
             </div>
@@ -124,15 +138,15 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
+      {/* About the Project Section */}
+      <section id="about" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Why SafePath Works
+              About SafePath
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Built by the community, for the community. Every feature is designed to make walking safer through shared local knowledge.
+              An open source project that empowers communities to share local safety knowledge and create safer walking experiences for everyone.
             </p>
           </div>
 
@@ -143,9 +157,9 @@ const Landing = () => {
                 <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
                   <Users className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Community-Verified</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Community-Driven</h3>
                 <p className="text-gray-600">
-                  Every route and safety report is validated by real people who know the area. Trust comes from lived experience.
+                  Built by and for the community. Every feature is shaped by real user needs and local safety knowledge.
                 </p>
               </CardContent>
             </Card>
@@ -154,11 +168,11 @@ const Landing = () => {
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                  <Eye className="h-8 w-8 text-green-600" />
+                  <Code className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Real-Time Insights</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Open Source</h3>
                 <p className="text-gray-600">
-                  Get up-to-date information about lighting, foot traffic, and safety conditions from people walking these routes daily.
+                  Transparent, auditable, and free. Anyone can contribute code, suggest features, or help improve the platform.
                 </p>
               </CardContent>
             </Card>
@@ -167,11 +181,11 @@ const Landing = () => {
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                  <Navigation className="h-8 w-8 text-purple-600" />
+                  <Shield className="h-8 w-8 text-purple-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Smart Route Planning</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Privacy-First</h3>
                 <p className="text-gray-600">
-                  Our algorithm considers community safety data to suggest the most secure paths for your journey.
+                  Anonymous reporting and privacy-focused design. Your safety data stays secure and under your control.
                 </p>
               </CardContent>
             </Card>
@@ -180,11 +194,11 @@ const Landing = () => {
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                  <MessageCircle className="h-8 w-8 text-yellow-600" />
+                  <Navigation className="h-8 w-8 text-yellow-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Anonymous Reporting</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Smart Route Planning</h3>
                 <p className="text-gray-600">
-                  Share safety concerns or positive observations without revealing your identity. Your privacy is protected.
+                  Our algorithm considers community safety data to suggest the most secure paths for your journey.
                 </p>
               </CardContent>
             </Card>
@@ -193,11 +207,11 @@ const Landing = () => {
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                  <Clock className="h-8 w-8 text-red-600" />
+                  <GitBranch className="h-8 w-8 text-red-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Time-Aware Safety</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Collaborative Development</h3>
                 <p className="text-gray-600">
-                  Route recommendations adapt based on time of day, considering factors like lighting and typical foot traffic.
+                  Join developers, designers, and safety advocates working together to improve community safety tools.
                 </p>
               </CardContent>
             </Card>
@@ -208,9 +222,9 @@ const Landing = () => {
                 <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
                   <Heart className="h-8 w-8 text-indigo-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Built for Everyone</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Made with Purpose</h3>
                 <p className="text-gray-600">
-                  Designed with accessibility in mind, ensuring everyone can contribute to and benefit from community safety knowledge.
+                  Every line of code is written with the goal of making communities safer and more connected.
                 </p>
               </CardContent>
             </Card>
@@ -218,135 +232,145 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 bg-gray-50">
+      {/* How to Contribute Section */}
+      <section id="contribute" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              How SafePath Works
+              How You Can Contribute
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Simple steps to safer walking. Join thousands of community members making Melbourne's streets safer for everyone.
+              Whether you're a developer, designer, safety advocate, or community member, there are many ways to help make SafePath better.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Step 1 */}
+            {/* Contribute Code */}
             <div className="text-center space-y-6">
-              <div className="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto text-2xl font-bold">
-                1
+              <div className="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto">
+                <Code className="h-8 w-8" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-900">Explore & Discover</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Contribute Code</h3>
                 <p className="text-gray-600">
-                  Browse community-verified safe routes in your area. See real-time safety ratings, lighting conditions, and foot traffic data.
+                  Help improve the platform with bug fixes, new features, or performance optimizations. All skill levels welcome.
                 </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow-md">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="h-4 w-4 text-blue-600" />
-                  <span>15 safe routes near you</span>
+                <div className="space-y-2 text-sm text-gray-500">
+                  <div>• React/TypeScript frontend</div>
+                  <div>• Supabase backend</div>
+                  <div>• MapLibre GL mapping</div>
                 </div>
               </div>
+              <Button variant="outline" className="w-full">
+                <Github className="mr-2 h-4 w-4" />
+                View Issues
+              </Button>
             </div>
 
-            {/* Step 2 */}
+            {/* Share Local Knowledge */}
             <div className="text-center space-y-6">
-              <div className="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto text-2xl font-bold">
-                2
+              <div className="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto">
+                <MapPin className="h-8 w-8" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-900">Share Your Experience</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Share Local Knowledge</h3>
                 <p className="text-gray-600">
-                  Report safety observations, rate routes, and share local insights. Your knowledge helps the entire community stay safer.
+                  Use the platform and contribute safety observations from your neighborhood. Your local insights help everyone.
                 </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow-md">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  <span>Rate this route's safety</span>
+                <div className="space-y-2 text-sm text-gray-500">
+                  <div>• Report safety observations</div>
+                  <div>• Rate walking routes</div>
+                  <div>• Share local insights</div>
                 </div>
               </div>
+              <Link to="/app">
+                <Button variant="outline" className="w-full">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  Try the Platform
+                </Button>
+              </Link>
             </div>
 
-            {/* Step 3 */}
+            {/* Spread the Word */}
             <div className="text-center space-y-6">
-              <div className="bg-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto text-2xl font-bold">
-                3
+              <div className="bg-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto">
+                <Users className="h-8 w-8" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-900">Build Community</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Spread the Word</h3>
                 <p className="text-gray-600">
-                  Connect with neighbors who care about safety. Together, we create a comprehensive map of secure walking paths.
+                  Help grow the community by sharing SafePath with friends, local groups, and safety-conscious organizations.
                 </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow-md">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Users className="h-4 w-4 text-purple-600" />
-                  <span>Join 2,500+ contributors</span>
+                <div className="space-y-2 text-sm text-gray-500">
+                  <div>• Share with community groups</div>
+                  <div>• Provide feedback & ideas</div>
+                  <div>• Help with documentation</div>
                 </div>
               </div>
+              <Button variant="outline" className="w-full">
+                <Heart className="mr-2 h-4 w-4" />
+                Join Community
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Community Stats Section */}
+      {/* Community Section */}
       <section id="community" className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold">
-              Powered by Community
+              Built by the Community
             </h2>
             <p className="text-xl opacity-90 max-w-3xl mx-auto">
-              Real numbers from real people making a real difference in Melbourne's walking safety.
+              SafePath is more than code—it's a community of people who believe in making walking safer for everyone.
             </p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">
             <div className="text-center space-y-2">
-              <div className="text-4xl lg:text-5xl font-bold">2,500+</div>
-              <div className="text-lg opacity-90">Active Contributors</div>
+              <div className="text-4xl lg:text-5xl font-bold">Open</div>
+              <div className="text-lg opacity-90">Source Project</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl lg:text-5xl font-bold">15,000+</div>
-              <div className="text-lg opacity-90">Safe Routes Mapped</div>
+              <div className="text-4xl lg:text-5xl font-bold">100%</div>
+              <div className="text-lg opacity-90">Community Driven</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl lg:text-5xl font-bold">45,000+</div>
-              <div className="text-lg opacity-90">Safety Reports</div>
+              <div className="text-4xl lg:text-5xl font-bold">Free</div>
+              <div className="text-lg opacity-90">Forever</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl lg:text-5xl font-bold">98%</div>
-              <div className="text-lg opacity-90">User Satisfaction</div>
+              <div className="text-4xl lg:text-5xl font-bold">Global</div>
+              <div className="text-lg opacity-90">Impact Potential</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Community Stories Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              What Our Community Says
+              Community Stories
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Real stories from real people who've made walking safer in their neighborhoods.
+              Hear from contributors and users who are helping build a safer walking experience for everyone.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Testimonial 1 */}
+            {/* Story 1 */}
             <Card className="border-0 shadow-lg">
               <CardContent className="p-8 space-y-4">
                 <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+                  <Coffee className="h-4 w-4 text-brown-500" />
+                  <span className="text-sm text-gray-500">Contributor</span>
                 </div>
                 <p className="text-gray-600 italic">
-                  "SafePath helped me find a well-lit route home from work. As a night shift worker, this app has been a game-changer for my peace of mind."
+                  "Contributing to SafePath has been incredibly rewarding. It's amazing to see how open source can directly impact community safety."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -354,22 +378,21 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">Sarah M.</div>
-                    <div className="text-sm text-gray-500">Healthcare Worker, Richmond</div>
+                    <div className="text-sm text-gray-500">Frontend Developer</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Testimonial 2 */}
+            {/* Story 2 */}
             <Card className="border-0 shadow-lg">
               <CardContent className="p-8 space-y-4">
                 <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+                  <MapPin className="h-4 w-4 text-green-500" />
+                  <span className="text-sm text-gray-500">Local User</span>
                 </div>
                 <p className="text-gray-600 italic">
-                  "I love contributing to the community by sharing my local knowledge. It feels good knowing I'm helping others stay safe in my neighborhood."
+                  "I love that this is open source and community-driven. It feels authentic because it's built by people who actually walk these streets."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -377,22 +400,21 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">Marcus T.</div>
-                    <div className="text-sm text-gray-500">Local Resident, Fitzroy</div>
+                    <div className="text-sm text-gray-500">Community Advocate</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Testimonial 3 */}
+            {/* Story 3 */}
             <Card className="border-0 shadow-lg">
               <CardContent className="p-8 space-y-4">
                 <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+                  <Code className="h-4 w-4 text-purple-500" />
+                  <span className="text-sm text-gray-500">New Contributor</span>
                 </div>
                 <p className="text-gray-600 italic">
-                  "The anonymous reporting feature is brilliant. I can share safety concerns without worrying about my privacy. The community response has been amazing."
+                  "This was my first open source contribution! The community is welcoming and the project has real social impact. Perfect combination."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
@@ -400,7 +422,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">Alex K.</div>
-                    <div className="text-sm text-gray-500">Student, Carlton</div>
+                    <div className="text-sm text-gray-500">CS Student</div>
                   </div>
                 </div>
               </CardContent>
@@ -409,38 +431,39 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Get Involved CTA Section */}
       <section className="py-20 bg-gradient-to-br from-blue-50 to-green-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
           <div className="space-y-4">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Ready to Walk Safer?
+              Ready to Get Involved?
             </h2>
             <p className="text-xl text-gray-600">
-              Join thousands of Melbourne residents making their community safer, one route at a time.
+              Join our community of developers, safety advocates, and local contributors making walking safer for everyone.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
+              <Github className="mr-2 h-5 w-5" />
+              Contribute on GitHub
+            </Button>
             <Link to="/app">
-              <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
-                Start Using SafePath
+              <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                Try the Platform
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              Learn More
-            </Button>
           </div>
 
-          {/* Email Signup */}
+          {/* Project Updates Signup */}
           <div className="max-w-md mx-auto">
             <form onSubmit={handleEmailSubmit} className="flex gap-2">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email for updates"
+                placeholder="Get project updates"
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -449,7 +472,7 @@ const Landing = () => {
               </Button>
             </form>
             <p className="text-xs text-gray-500 mt-2">
-              Get notified about new features and safety updates. No spam, ever.
+              Stay updated on new features, releases, and community events.
             </p>
           </div>
         </div>
@@ -463,42 +486,43 @@ const Landing = () => {
               <div className="flex items-center gap-2">
                 <Shield className="h-6 w-6 text-blue-400" />
                 <span className="text-lg font-bold">SafePath</span>
+                <Badge variant="outline" className="text-xs border-gray-600 text-gray-400">Open Source</Badge>
               </div>
               <p className="text-gray-400 text-sm">
-                Community-driven safety for Melbourne's walking routes. By the people, for the people.
+                An open source community project for safer walking routes. Built with ❤️ by people who care about community safety.
               </p>
             </div>
             
             <div className="space-y-4">
-              <h4 className="font-semibold">Product</h4>
+              <h4 className="font-semibold">Project</h4>
               <div className="space-y-2 text-sm text-gray-400">
-                <div><a href="#features" className="hover:text-white transition-colors">Features</a></div>
-                <div><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></div>
-                <div><Link to="/app" className="hover:text-white transition-colors">Open App</Link></div>
+                <div><a href="#about" className="hover:text-white transition-colors">About</a></div>
+                <div><a href="#contribute" className="hover:text-white transition-colors">Contribute</a></div>
+                <div><Link to="/app" className="hover:text-white transition-colors">Try Demo</Link></div>
               </div>
             </div>
             
             <div className="space-y-4">
               <h4 className="font-semibold">Community</h4>
               <div className="space-y-2 text-sm text-gray-400">
-                <div><a href="#community" className="hover:text-white transition-colors">Statistics</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Guidelines</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Support</a></div>
+                <div><a href="#" className="hover:text-white transition-colors flex items-center gap-1"><Github className="h-3 w-3" /> GitHub</a></div>
+                <div><a href="#" className="hover:text-white transition-colors">Discussions</a></div>
+                <div><a href="#" className="hover:text-white transition-colors">Contributing Guide</a></div>
               </div>
             </div>
             
             <div className="space-y-4">
-              <h4 className="font-semibold">Legal</h4>
+              <h4 className="font-semibold">Resources</h4>
               <div className="space-y-2 text-sm text-gray-400">
-                <div><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Terms of Service</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Contact</a></div>
+                <div><a href="#" className="hover:text-white transition-colors">Documentation</a></div>
+                <div><a href="#" className="hover:text-white transition-colors">API Reference</a></div>
+                <div><a href="#" className="hover:text-white transition-colors">License (MIT)</a></div>
               </div>
             </div>
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 SafePath Melbourne. Made with ❤️ by the community, for the community.</p>
+            <p>&copy; 2024 SafePath Community. Open source project licensed under MIT. Made with ❤️ for safer communities.</p>
           </div>
         </div>
       </footer>
