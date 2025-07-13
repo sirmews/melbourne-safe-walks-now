@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { InfoCardsSection } from '@/components/layout/InfoCardsSection';
+import HeroSection from '@/components/layout/HeroSection';
+import Footer from '@/components/layout/Footer';
 import { ReportModal } from '@/components/reports/ReportModal';
 import { ReportDetailsModal } from '@/components/reports/ReportDetailsModal';
 import { useJourneyPlanner } from '@/hooks/useJourneyPlanner';
@@ -81,7 +82,7 @@ const Index = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   // Get user's current location on component mount
-  useState(() => {
+  useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -93,31 +94,35 @@ const Index = () => {
         }
       );
     }
-  });
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <Header />
       
-      <MainLayout
-        userLocation={userLocation}
-        origin={origin}
-        destination={destination}
-        route={route}
-        isLoading={isLoading}
-        useSafeRouting={useSafeRouting}
-        setOrigin={setOrigin}
-        setDestination={setDestination}
-        setUseSafeRouting={setUseSafeRouting}
-        calculateRoute={calculateRoute}
-        clearRoute={clearRoute}
-        getAddressFromCoordinates={getAddressFromCoordinates}
-        onMapClick={handleMapClick}
-        onReportClick={handleReportClick}
-        onPlanTripToLocation={handlePlanTripToLocation}
-      >
-       
-      </MainLayout>
+      <HeroSection />
+      
+      <div id="map-section">
+        <MainLayout
+          userLocation={userLocation}
+          origin={origin}
+          destination={destination}
+          route={route}
+          isLoading={isLoading}
+          useSafeRouting={useSafeRouting}
+          setOrigin={setOrigin}
+          setDestination={setDestination}
+          setUseSafeRouting={setUseSafeRouting}
+          calculateRoute={calculateRoute}
+          clearRoute={clearRoute}
+          getAddressFromCoordinates={getAddressFromCoordinates}
+          onMapClick={handleMapClick}
+          onReportClick={handleReportClick}
+          onPlanTripToLocation={handlePlanTripToLocation}
+        />
+      </div>
+      
+      <Footer />
 
       {selectedLocation && (
         <ReportModal
