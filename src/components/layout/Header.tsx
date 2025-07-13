@@ -1,5 +1,5 @@
 
-import { Shield, MapPin } from 'lucide-react';
+import { Shield, Route } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export const Header = () => {
@@ -8,9 +8,11 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <MapPin className="h-8 w-8 text-green-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">SafePath Melbourne</h1>
+            <div className="relative">
+              <Route className="h-8 w-8 text-primary" />
+              <Shield className="h-4 w-4 text-primary absolute -top-1 -right-1" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Safer Path</h1>
           </div>
           
           <div className="flex items-center gap-4">

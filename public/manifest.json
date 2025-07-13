@@ -1,7 +1,7 @@
 
 {
-  "name": "SafePath Melbourne",
-  "short_name": "SafePath",
+  "name": "Safer Path",
+  "short_name": "Safer Path",
   "description": "Community-driven safety information for safer walks in Melbourne",
   "start_url": "/",
   "display": "standalone",

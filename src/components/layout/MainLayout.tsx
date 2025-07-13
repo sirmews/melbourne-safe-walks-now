@@ -59,8 +59,8 @@ export const MainLayout = ({
               <AccordionItem value="about" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-blue-600" />
-                    About SafePath
+                    <Shield className="h-5 w-5 text-primary" />
+                    About Safer Path
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -71,7 +71,7 @@ export const MainLayout = ({
               <AccordionItem value="journey" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <Route className="h-5 w-5 text-blue-600" />
+                    <Route className="h-5 w-5 text-primary" />
                     Plan Journey
                   </div>
                 </AccordionTrigger>
@@ -96,7 +96,7 @@ export const MainLayout = ({
               <AccordionItem value="legend" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <Map className="h-5 w-5 text-blue-600" />
+                    <Map className="h-5 w-5 text-primary" />
                     Legend
                   </div>
                 </AccordionTrigger>
@@ -110,15 +110,21 @@ export const MainLayout = ({
 
         {/* Map */}
         <div className="lg:col-span-3">
-          <Card className="h-[800px] overflow-hidden">
-            <MapView 
-              onMapClick={onMapClick} 
-              onReportClick={onReportClick}
-              onPlanTripToLocation={onPlanTripToLocation}
-              route={route}
-              origin={origin}
-              destination={destination}
-            />
+          <Card className="h-[800px] overflow-hidden relative">
+            <div className="absolute inset-0" style={{ touchAction: 'pan-x pan-y' }}>
+              <MapView 
+                onMapClick={onMapClick} 
+                onReportClick={onReportClick}
+                onPlanTripToLocation={onPlanTripToLocation}
+                route={route}
+                origin={origin}
+                destination={destination}
+              />
+            </div>
+            {/* Scroll indicator */}
+            <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-md text-xs pointer-events-none z-10">
+              Hold Ctrl + scroll to zoom map
+            </div>
           </Card>
         </div>
       </div>
