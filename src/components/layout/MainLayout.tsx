@@ -10,6 +10,11 @@ import { Shield, Route, Map } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { JourneyPoint, Route as JourneyRoute } from '@/hooks/useJourneyPlanner';
 
+// Feature flags
+const FEATURE_FLAGS = {
+  JOURNEY_PLANNER: false, // Set to true to enable journey planning
+};
+
 type SafetyReport = Database['public']['Functions']['get_reports_in_bounds']['Returns'][0];
 
 interface MainLayoutProps {
@@ -55,7 +60,7 @@ export const MainLayout = ({
         {/* Sidebar with Accordion */}
         <div className="lg:col-span-1">
           <Card>
-            <Accordion type="multiple" defaultValue={["about", "journey", "legend"]} className="p-4">
+            <Accordion type="multiple" defaultValue={["about", ...(FEATURE_FLAGS.JOURNEY_PLANNER ? ["journey"] : []), "legend"]} className="p-4">
               <AccordionItem value="about" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
                   <div className="flex items-center gap-2">
@@ -68,30 +73,32 @@ export const MainLayout = ({
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="journey" className="border-b-0">
-                <AccordionTrigger className="text-base font-semibold hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <Route className="h-5 w-5 text-primary" />
-                    Plan Journey
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <JourneyPlanner 
-                    userLocation={userLocation}
-                    origin={origin}
-                    destination={destination}
-                    route={route}
-                    isLoading={isLoading}
-                    useSafeRouting={useSafeRouting}
-                    setOrigin={setOrigin}
-                    setDestination={setDestination}
-                    setUseSafeRouting={setUseSafeRouting}
-                    calculateRoute={calculateRoute}
-                    clearRoute={clearRoute}
-                    getAddressFromCoordinates={getAddressFromCoordinates}
-                  />
-                </AccordionContent>
-              </AccordionItem>
+              {FEATURE_FLAGS.JOURNEY_PLANNER && (
+                <AccordionItem value="journey" className="border-b-0">
+                  <AccordionTrigger className="text-base font-semibold hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Route className="h-5 w-5 text-primary" />
+                      Plan Journey
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <JourneyPlanner 
+                      userLocation={userLocation}
+                      origin={origin}
+                      destination={destination}
+                      route={route}
+                      isLoading={isLoading}
+                      useSafeRouting={useSafeRouting}
+                      setOrigin={setOrigin}
+                      setDestination={setDestination}
+                      setUseSafeRouting={setUseSafeRouting}
+                      calculateRoute={calculateRoute}
+                      clearRoute={clearRoute}
+                      getAddressFromCoordinates={getAddressFromCoordinates}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
               <AccordionItem value="legend" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
