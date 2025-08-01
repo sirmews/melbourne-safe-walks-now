@@ -8,7 +8,7 @@ interface MapPopupProps {
   };
   onClose: () => void;
   onSafetyReport: () => void;
-  onPlanTrip: (lng: number, lat: number) => void;
+  onPlanTrip: () => void;
   showPlanTrip?: boolean;
 }
 export const MapPopup = ({
@@ -19,7 +19,7 @@ export const MapPopup = ({
   showPlanTrip = true
 }: MapPopupProps) => {
   const handlePlanTrip = () => {
-    onPlanTrip(position.lng, position.lat);
+    onPlanTrip();
   };
   return <Card className="absolute z-40 p-3 bg-white shadow-lg rounded-lg min-w-[200px] transform -translate-x-1/2 -translate-y-full">
       <div className="flex items-center justify-between mb-2">
