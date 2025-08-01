@@ -23,7 +23,7 @@ export const MapPopup = ({
   };
   return <Card className="absolute z-40 p-3 bg-white shadow-lg rounded-lg min-w-[200px] transform -translate-x-1/2 -translate-y-full">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700">Map Options</span>
+        
         <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
           <X className="h-3 w-3" />
         </Button>
