@@ -1,8 +1,6 @@
 import { Github, Shield, FileText } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-muted/30 border-t border-border py-12 px-4 sm:px-6 lg:px-8">
+  return <footer className="bg-muted/30 border-t border-border py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand Section */}
@@ -21,30 +19,15 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-foreground">Resources</h3>
             <div className="space-y-2">
-              <a 
-                href="https://github.com/your-repo/safepath-melbourne#privacy-policy" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <a href="https://github.com/your-repo/safepath-melbourne#privacy-policy" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <FileText className="h-4 w-4" />
                 Privacy Policy
               </a>
-              <a 
-                href="https://github.com/your-repo/safepath-melbourne#contributing" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <a href="https://github.com/your-repo/safepath-melbourne#contributing" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <Github className="h-4 w-4" />
                 Contribution Guidelines
               </a>
-              <a 
-                href="https://github.com/your-repo/safepath-melbourne" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <a href="https://github.com/your-repo/safepath-melbourne" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <Github className="h-4 w-4" />
                 View Source Code
               </a>
@@ -66,24 +49,7 @@ const Footer = () => {
           </div>
 
           {/* Built With Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Built With</h3>
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                <span>Lovable</span>
-                <span>Supabase</span>
-                <span>MapLibre GL</span>
-                <span>MapTiler</span>
-                <span>React</span>
-                <span>Vite</span>
-                <span>Tailwind CSS</span>
-                <span>TypeScript</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Built with love for the open source community.
-              </p>
-            </div>
-          </div>
+          
         </div>
 
         {/* Bottom Bar */}
@@ -93,19 +59,12 @@ const Footer = () => {
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>Made with ❤️ for the community</span>
-            <a 
-              href="https://github.com/your-repo/safer-path" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
-            >
+            <a href="https://github.com/your-repo/safer-path" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Contribute on GitHub
             </a>
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
