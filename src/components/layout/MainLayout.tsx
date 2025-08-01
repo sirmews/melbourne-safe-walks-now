@@ -126,6 +126,7 @@ export const MainLayout = ({
                 route={route}
                 origin={origin}
                 destination={destination}
+                showPlanTrip={FEATURE_FLAGS.JOURNEY_PLANNER}
               />
             </div>
             {/* Scroll indicator */}

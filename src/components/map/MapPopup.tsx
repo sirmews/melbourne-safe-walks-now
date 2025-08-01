@@ -8,9 +8,10 @@ interface MapPopupProps {
   onClose: () => void;
   onSafetyReport: () => void;
   onPlanTrip: (lng: number, lat: number) => void;
+  showPlanTrip?: boolean;
 }
 
-export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapPopupProps) => {
+export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip, showPlanTrip = true }: MapPopupProps) => {
   const handlePlanTrip = () => {
     onPlanTrip(position.lng, position.lat);
   };
@@ -29,7 +30,7 @@ export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapP
         </Button>
       </div>
       
-      <div className="grid grid-cols-2 gap-2">
+      <div className={`grid gap-2 ${showPlanTrip ? 'grid-cols-2' : 'grid-cols-1'}`}>
         <div className='flex-1 flex'>
         <Button
           variant="outline"
@@ -41,17 +42,19 @@ export const MapPopup = ({ position, onClose, onSafetyReport, onPlanTrip }: MapP
           <span className="text-xs">Safety Report</span>
         </Button>
         </div>
-        <div className='flex-1 flex'>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handlePlanTrip}
-          className="flex-1 flex flex-col items-center p-3 h-auto"
-        >
-          <Navigation className="h-5 w-5 mb-1 text-green-600" />
-          <span className="text-xs">Plan Trip</span>
-        </Button>
-        </div>
+        {showPlanTrip && (
+          <div className='flex-1 flex'>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePlanTrip}
+            className="flex-1 flex flex-col items-center p-3 h-auto"
+          >
+            <Navigation className="h-5 w-5 mb-1 text-green-600" />
+            <span className="text-xs">Plan Trip</span>
+          </Button>
+          </div>
+        )}
       </div>
       
       <div className="text-xs text-gray-500 mt-2 text-center">

@@ -32,6 +32,7 @@ interface MapViewProps {
   route?: any;
   origin?: { lat: number; lng: number };
   destination?: { lat: number; lng: number };
+  showPlanTrip?: boolean;
 }
 
 export const MapView = ({ 
@@ -40,7 +41,8 @@ export const MapView = ({
   onPlanTripToLocation, 
   route, 
   origin, 
-  destination 
+  destination,
+  showPlanTrip = true
 }: MapViewProps) => {
   const { mapContainer, map, userLocation } = useMapInitialization();
   const [popupPosition, setPopupPosition] = useState<{ lng: number; lat: number; x: number; y: number } | null>(null);
@@ -120,6 +122,7 @@ export const MapView = ({
             onClose={handlePopupClose}
             onSafetyReport={handlePopupSafetyReport}
             onPlanTrip={handlePopupPlanTrip}
+            showPlanTrip={showPlanTrip}
           />
         </div>
       )}
