@@ -2,10 +2,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Shield, Users, MapPin, Code, Heart, ExternalLink } from 'lucide-react';
 const HeroSection = () => {
-  return <section className="bg-background py-16 px-4 sm:px-6 lg:px-8">
+  return <section className="bg-background pb-16 pt-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="text-center space-y-8">
-          <div className="space-y-4 flex flex-col items-center">
+          <div className="space-y-2 flex flex-col items-center">
             <h1 className="text-4xl lg:text-6xl font-bold font-playfair">
               Safer paths, shared by those who{' '}
               <span>walk them</span>
@@ -18,7 +18,7 @@ const HeroSection = () => {
           </div>
           
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
             <Button size="lg" className="bg-[#81812c]" onClick={() => document.querySelector('#map-section')?.scrollIntoView({
             behavior: 'smooth'
           })}>

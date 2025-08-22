@@ -6,24 +6,23 @@ const Footer = () => {
         <div className="flex md:flex-row flex-col gap-4">
 
           {/* Brand Section */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className='md:w-[60%] w-full'>
-
-            <div className="flex items-center gap-2">
-            <Route className="h-8 w-8 text-background" />
-              <span className="text-lg font-bold text-foreground font-playfair text-background tracking-wide">Safer Path</span>
-            </div>
-            <p className="text-sm text-muted-foreground text-background">
-              Community-sourced safety information. 
-              Built with open source technologies and powered by local knowledge.
-            </p>
+            <div className="flex items-center">
+              <Route className="h-8 w-8 text-background" />
+                <span className="text-lg font-bold text-foreground font-playfair text-background tracking-wide">Safer Path</span>
+              </div>
+              <p className="text-sm text-muted-foreground text-background">
+                Community-sourced safety information. 
+                Built with open source technologies and powered by local knowledge.
+              </p>
             </div>
           </div>
 
           <div className="flex md:flex-row flex-col justify-end gap-2">
 
             {/* Community Section */}
-            <div className="space-y-2 md:w-[60%] w-full">
+            <div className="space-y-2 md:w-[60%] w-full md:mb-0 mb-2">
               <h3 className="text-sm font-semibold text-foreground text-background">Community</h3>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground text-background">
