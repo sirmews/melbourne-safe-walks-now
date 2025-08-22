@@ -1,5 +1,5 @@
 
-import { Shield, Route } from 'lucide-react';
+import { Route } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export const Header = () => {

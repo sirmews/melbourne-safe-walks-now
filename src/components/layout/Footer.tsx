@@ -1,67 +1,69 @@
-import { Github, Shield, FileText } from 'lucide-react';
+import { Github, FileText, Route } from 'lucide-react';
+
 const Footer = () => {
-  return <footer className="bg-muted/30 border-t border-border py-12 px-4 sm:px-6 lg:px-8">
+  return <footer className="bg-primary border-t border-border pt-8 pb-4 px-4 sm:px-6 lg:px-8 text-secondary">
       <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="flex md:flex-row flex-col gap-4">
+
           {/* Brand Section */}
           <div className="space-y-4">
+            <div className='md:w-[60%] w-full'>
+
             <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold text-foreground">Safer Path</span>
+            <Route className="h-8 w-8 text-background" />
+              <span className="text-lg font-bold text-foreground font-playfair text-background tracking-wide">Safer Path</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-background">
               Community-sourced safety information. 
               Built with open source technologies and powered by local knowledge.
             </p>
-          </div>
-
-          {/* Links Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Resources</h3>
-            <div className="space-y-2">
-              <a href="https://github.com/your-repo/safepath-melbourne#privacy-policy" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <FileText className="h-4 w-4" />
-                Privacy Policy
-              </a>
-              <a href="https://github.com/your-repo/safepath-melbourne#contributing" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <Github className="h-4 w-4" />
-                Contribution Guidelines
-              </a>
-              <a href="https://github.com/your-repo/safepath-melbourne" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <Github className="h-4 w-4" />
-                View Source Code
-              </a>
             </div>
           </div>
 
-          {/* Community Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Community</h3>
+          <div className="flex md:flex-row flex-col justify-end gap-2">
+
+            {/* Community Section */}
+            <div className="space-y-2 md:w-[60%] w-full">
+              <h3 className="text-sm font-semibold text-foreground text-background">Community</h3>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground text-background">
+                  This project is built by and for the community. 
+                  All submissions are anonymous and help create safer walking experiences for everyone.
+                </p>
+                <p className="text-xs text-muted-foreground text-background">
+                  Free and open source software. No tracking, no ads, no profit.
+                </p>
+              </div>
+            </div>
+
+            {/* Links Section */}
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                This project is built by and for the community. 
-                All submissions are anonymous and help create safer walking experiences for everyone.
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Free and open source software. No tracking, no ads, no profit.
-              </p>
+              <h3 className="text-sm font-semibold text-foreground text-background">Resources</h3>
+              <div className="space-y-2">
+                <a href="https://github.com/your-repo/safepath-melbourne#privacy-policy" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors text-background">
+                  <FileText className="h-4 w-4" />
+                  Privacy Policy
+                </a>
+                <a href="https://github.com/your-repo/safepath-melbourne#contributing" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors text-background">
+                  <Github className="h-4 w-4" />
+                  Contribution Guidelines
+                </a>
+                <a href="https://github.com/your-repo/safepath-melbourne" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors text-background">
+                  <Github className="h-4 w-4" />
+                  Contribute on Github
+                </a>
+              </div>
             </div>
           </div>
-
-          {/* Built With Section */}
-          
         </div>
-
+          
         {/* Bottom Bar */}
-        <div className="border-t border-border mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-muted-foreground">
+        <div className="mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-muted-foreground text-background">
             © 2024 Safer Path. Open source project licensed under MIT.
           </p>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground text-background">
             <span>Made with ❤️ for the community</span>
-            <a href="https://github.com/your-repo/safer-path" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Contribute on GitHub
-            </a>
           </div>
         </div>
       </div>
