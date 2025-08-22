@@ -97,7 +97,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f8f3e7]">
+    <div className="min-h-screen overflow-hidden bg-[#f8f3e7]">
       <Header />
       
       <HeroSection />
