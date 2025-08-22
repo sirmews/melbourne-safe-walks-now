@@ -6,12 +6,12 @@ const HeroSection = () => {
       <div className="max-w-5xl mx-auto">
         <div className="text-center space-y-8">
           <div className="space-y-4 flex flex-col items-center">
-            <h1 className="text-4xl lg:text-6xl font-bold font-playfair">
+            <h1 className="text-4xl lg:text-6xl font-bold font-playfair text-gray-900">
               Safer paths, shared by those who{' '}
               <span>walk them</span>
             </h1>
             <img src="/assets/wally-walking-waratah.png" className="w-[300px] h-[300px]"></img>
-            <p className="text-xl opacity-60 max-w-4xl mx-auto">
+            <p className="text-xl opacity-70 max-w-4xl mx-auto">
               An open source platform for discovering and sharing secure walking routes through community collaboration. 
               Built by developers and safety advocates, for everyone who walks.
             </p>

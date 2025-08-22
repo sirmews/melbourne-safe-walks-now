@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="space-y-2">
             <div className='md:w-[60%] w-full'>
             <div className="flex items-center">
-                <Footprints className="h-8 w-8 text-background mr-1" />
+                <Footprints className="text-background mr-1" />
                 <span className="text-lg font-bold font-playfair text-background tracking-wide">Safer Path</span>
               </div>
               <p className="text-sm text-background">
