@@ -117,7 +117,7 @@ export const MainLayout = ({
 
         {/* Map */}
         <div className="lg:col-span-3">
-          <Card className="h-[800px] overflow-hidden relative">
+          <Card className="h-[800px] overflow-hidden relative shadow-lg">
             <div className="absolute inset-0" style={{ touchAction: 'pan-x pan-y' }}>
               <MapView 
                 onMapClick={onMapClick} 

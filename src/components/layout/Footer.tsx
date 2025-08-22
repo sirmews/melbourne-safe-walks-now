@@ -1,4 +1,4 @@
-import { Github, FileText, Route } from 'lucide-react';
+import { Github, FileText, Footprints, Route } from 'lucide-react';
 
 const Footer = () => {
   return <footer className="bg-primary border-t border-border pt-8 pb-4 px-4 sm:px-6 lg:px-8">
@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="space-y-2">
             <div className='md:w-[60%] w-full'>
             <div className="flex items-center">
-              <Route className="h-8 w-8 text-background" />
+                <Footprints className="h-8 w-8 text-background mr-1" />
                 <span className="text-lg font-bold font-playfair text-background tracking-wide">Safer Path</span>
               </div>
               <p className="text-sm text-background">

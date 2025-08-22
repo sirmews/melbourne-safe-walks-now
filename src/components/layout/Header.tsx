@@ -1,5 +1,5 @@
 
-import { Route } from 'lucide-react';
+import { Footprints, Route } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export const Header = () => {
@@ -8,7 +8,8 @@ export const Header = () => {
         <div className="flex justify-between items-center h-16 w-full ml-8">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Route className="h-8 w-8 text-primary" />
+              {/* <Route className="h-8 w-8 text-primary" /> */}
+              <Footprints className="h-8 w-8 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white font-playfair">Safer Path</h1>
           </div>

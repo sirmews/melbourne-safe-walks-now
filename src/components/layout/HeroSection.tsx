@@ -5,12 +5,12 @@ const HeroSection = () => {
   return <section className="bg-background pb-16 pt-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="text-center space-y-8">
-          <div className="space-y-2 flex flex-col items-center">
+          <div className="space-y-4 flex flex-col items-center">
             <h1 className="text-4xl lg:text-6xl font-bold font-playfair">
               Safer paths, shared by those who{' '}
               <span>walk them</span>
             </h1>
-            <img src="/assets/walking-flower.png" className="w-[200px] h-[300px]"></img>
+            <img src="/assets/wally-walking-waratah.png" className="w-[300px] h-[300px]"></img>
             <p className="text-xl opacity-60 max-w-4xl mx-auto">
               An open source platform for discovering and sharing secure walking routes through community collaboration. 
               Built by developers and safety advocates, for everyone who walks.
