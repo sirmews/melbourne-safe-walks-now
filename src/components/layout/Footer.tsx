@@ -10,7 +10,7 @@ const Footer = () => {
             <div className='md:w-[60%] w-full'>
             <div className="flex items-center">
               <Route className="h-8 w-8 text-background" />
-                <span className="text-lg font-bold text-foreground font-playfair text-background tracking-wide">Safer Path</span>
+                <span className="text-lg font-bold font-playfair text-background tracking-wide">Safer Path</span>
               </div>
               <p className="text-sm text-background">
                 Community-sourced safety information. 
@@ -23,7 +23,7 @@ const Footer = () => {
 
             {/* Community Section */}
             <div className="space-y-2 md:w-[60%] w-full md:mb-0 mb-2">
-              <h3 className="text-sm font-semibold text-foreground text-background">Community</h3>
+              <h3 className="text-sm font-semibold text-background">Community</h3>
               <div className="space-y-2">
                 <p className="text-sm text-background">
                   This project is built by and for the community. 
@@ -37,7 +37,7 @@ const Footer = () => {
 
             {/* Links Section */}
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-foreground text-background">Resources</h3>
+              <h3 className="text-sm font-semibold text-background">Resources</h3>
               <div className="space-y-2">
                 <a href="https://github.com/your-repo/safepath-melbourne#privacy-policy" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-white transition-colors text-background">
                   <FileText className="h-4 w-4" />
