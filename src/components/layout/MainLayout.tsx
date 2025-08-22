@@ -55,7 +55,7 @@ export const MainLayout = ({
   children
 }: MainLayoutProps) => {
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-[#f8f3e7]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar with Accordion */}
         <div className="lg:col-span-1">
