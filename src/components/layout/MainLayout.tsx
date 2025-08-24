@@ -64,7 +64,7 @@ export const MainLayout = ({
               <AccordionItem value="about" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-primary" />
+                    <Shield className="h-5 w-5" />
                     About Safer Path
                   </div>
                 </AccordionTrigger>
@@ -103,7 +103,7 @@ export const MainLayout = ({
               <AccordionItem value="legend" className="border-b-0">
                 <AccordionTrigger className="text-base font-semibold hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <Map className="h-5 w-5 text-primary" />
+                    <Map className="h-5 w-5" />
                     Legend
                   </div>
                 </AccordionTrigger>
